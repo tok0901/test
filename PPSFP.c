@@ -19,19 +19,21 @@ int SAF_PPSFP(int test_number,int sim_test) {
 
 		if (ffr[ffr_number].fos->value == 1) {										//対象信号線の正常値が1の時
 
-			if (SAF_CPT1(ffr[ffr_number].fos, test_number,sim_test) == 1) {			//SAF_CPT1呼出し
-				printf("FFR%dのCPT完了\n\n", ffr[ffr_number].fos->ffr_id);
+			if (SAF_CPT1(ffr[ffr_number].fos, test_number,sim_test) != 1) {			//SAF_CPT1呼出し
+				return 0;
 			}
 
 		}
 
 		else if (ffr[ffr_number].fos->value == 0) {									//対象信号線の正常値が0の時
 
-			if (SAF_CPT0(ffr[ffr_number].fos, test_number, sim_test) == 1) {		//SAF_CPT0呼出し
-				printf("FFR%dのCPT完了\n\n", ffr[ffr_number].fos->ffr_id);
+			if (SAF_CPT0(ffr[ffr_number].fos, test_number, sim_test) != 1) {		//SAF_CPT0呼出し
+				return 0;
 			}
 
 		}
+
+		printf("FFR%dのCPT完了\n\n", ffr[ffr_number].fos->ffr_id);
 
 	}
 
