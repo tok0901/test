@@ -1,0 +1,396 @@
+tp0
+s-a-1                      a
+s-a-1                      g
+s-a-1                      i
+s-a-1                  i_k_B
+s-a-1                      k
+s-a-1                  i_l_A
+s-a-1                      j
+s-a-1                      l
+
+tp1
+s-a-1                      a
+s-a-1                      g
+s-a-1                      i
+s-a-1                  i_k_B
+s-a-1                      k
+s-a-1                  i_l_A
+s-a-1                      c
+s-a-1                  c_h_A
+s-a-1                      d
+s-a-1                      h
+s-a-1                  h_j_B
+s-a-1                      j
+s-a-1                      l
+
+tp2
+s-a-1                      a
+s-a-1                      g
+s-a-1                      b
+s-a-1                      i
+s-a-1                  i_k_B
+s-a-1                      k
+s-a-1                  i_l_A
+s-a-1                      e
+s-a-1                      j
+s-a-1                      l
+
+tp3
+s-a-1                      a
+s-a-1                      g
+s-a-1                      b
+s-a-1                      i
+s-a-1                  i_k_B
+s-a-1                      k
+s-a-0                      e
+s-a-0                      d
+s-a-0                      h
+s-a-0                  h_j_B
+s-a-0                      j
+s-a-0                      l
+
+tp4
+s-a-1                      g
+s-a-1                      b
+s-a-1                      i
+s-a-1                  i_k_B
+s-a-1                      k
+s-a-1                  i_l_A
+s-a-1                      e
+s-a-1                      j
+s-a-1                      l
+
+tp5
+s-a-1                      g
+s-a-1                      b
+s-a-1                      i
+s-a-1                  i_k_B
+s-a-1                      k
+s-a-0                      e
+s-a-0                      c
+s-a-0                  c_h_A
+s-a-0                      h
+s-a-0                  h_j_B
+s-a-0                      j
+s-a-0                      l
+
+tp6
+s-a-1                      g
+s-a-1                      b
+s-a-1                      i
+s-a-1                  i_k_B
+s-a-1                      k
+s-a-1                  i_l_A
+s-a-1                      e
+s-a-1                      j
+s-a-1                      l
+
+tp7
+s-a-1                      g
+s-a-1                      b
+s-a-1                      i
+s-a-1                  i_k_B
+s-a-1                      k
+s-a-0                      e
+s-a-0                      h
+s-a-0                  h_j_B
+s-a-0                      j
+s-a-0                      l
+
+tp8
+s-a-1                      a
+s-a-1                      g
+s-a-1                      c
+s-a-1                  c_h_A
+s-a-1                      d
+s-a-1                      h
+s-a-1                  h_i_B
+s-a-1                      i
+s-a-1                  i_k_B
+s-a-1                      k
+s-a-1                  i_l_A
+s-a-1                      j
+s-a-1                      l
+
+tp9
+s-a-1                      a
+s-a-1                      g
+s-a-1                      c
+s-a-1                  c_h_A
+s-a-1                      d
+s-a-1                      h
+s-a-1                  h_i_B
+s-a-1                      i
+s-a-1                  i_k_B
+s-a-1                      k
+s-a-1                  i_l_A
+s-a-1                  h_j_B
+s-a-1                      j
+s-a-1                      l
+
+tp10
+s-a-0                      b
+s-a-0                      d
+s-a-0                      h
+s-a-0                  h_i_B
+s-a-0                      i
+s-a-0                  i_k_B
+s-a-0                      k
+s-a-0                  i_l_A
+s-a-0                      l
+
+tp11
+s-a-0                      b
+s-a-0                      d
+s-a-0                      h
+s-a-0                  h_i_B
+s-a-0                      i
+s-a-0                  i_k_B
+s-a-0                      k
+s-a-0                      l
+
+tp12
+s-a-0                      b
+s-a-0                      c
+s-a-0                  c_h_A
+s-a-0                      h
+s-a-0                  h_i_B
+s-a-0                      i
+s-a-0                  i_k_B
+s-a-0                      k
+s-a-0                  i_l_A
+s-a-0                      l
+
+tp13
+s-a-0                      b
+s-a-0                      c
+s-a-0                  c_h_A
+s-a-0                      h
+s-a-0                  h_i_B
+s-a-0                      i
+s-a-0                  i_k_B
+s-a-0                      k
+s-a-0                      l
+
+tp14
+s-a-0                      b
+s-a-0                      h
+s-a-0                  h_i_B
+s-a-0                      i
+s-a-0                  i_k_B
+s-a-0                      k
+s-a-0                  i_l_A
+s-a-0                      l
+
+tp15
+s-a-0                      b
+s-a-0                      h
+s-a-0                  h_i_B
+s-a-0                      i
+s-a-0                  i_k_B
+s-a-0                      k
+s-a-0                      l
+
+tp16
+s-a-1                      c
+s-a-1                  c_f_A
+s-a-0                      f
+s-a-0                      a
+s-a-0                      g
+s-a-0                      k
+s-a-1                      i
+s-a-1                  i_l_A
+s-a-1                      j
+s-a-1                      l
+
+tp17
+s-a-1                      c
+s-a-1                  c_f_A
+s-a-0                      f
+s-a-0                      a
+s-a-0                      g
+s-a-0                      k
+s-a-1                      i
+s-a-1                  i_l_A
+s-a-1                  c_h_A
+s-a-1                      d
+s-a-1                      h
+s-a-1                  h_j_B
+s-a-1                      j
+s-a-1                      l
+
+tp18
+s-a-1                      c
+s-a-1                  c_f_A
+s-a-0                      f
+s-a-0                      a
+s-a-0                      g
+s-a-0                      k
+s-a-1                      b
+s-a-1                      i
+s-a-1                  i_l_A
+s-a-1                      e
+s-a-1                      j
+s-a-1                      l
+
+tp19
+s-a-1                      c
+s-a-1                  c_f_A
+s-a-0                      f
+s-a-0                      a
+s-a-0                      g
+s-a-0                      k
+s-a-0                      e
+s-a-0                      d
+s-a-0                      h
+s-a-0                  h_j_B
+s-a-0                      j
+s-a-0                      l
+
+tp20
+s-a-0                      c
+s-a-0                  c_f_A
+s-a-1                      f
+s-a-1                      g
+s-a-1                      b
+s-a-1                      i
+s-a-1                  i_k_B
+s-a-1                      k
+s-a-1                  i_l_A
+s-a-1                      e
+s-a-1                      j
+s-a-1                      l
+
+tp21
+s-a-0                      c
+s-a-0                  c_f_A
+s-a-1                      f
+s-a-1                      g
+s-a-1                      b
+s-a-1                      i
+s-a-1                  i_k_B
+s-a-1                      k
+s-a-0                      e
+s-a-0                  c_h_A
+s-a-0                      h
+s-a-0                  h_j_B
+s-a-0                      j
+s-a-0                      l
+
+tp22
+s-a-0                      c
+s-a-0                  c_f_A
+s-a-1                      f
+s-a-1                      g
+s-a-1                      b
+s-a-1                      i
+s-a-1                  i_k_B
+s-a-1                      k
+s-a-1                  i_l_A
+s-a-1                      e
+s-a-1                      j
+s-a-1                      l
+
+tp23
+s-a-0                      c
+s-a-0                  c_f_A
+s-a-1                      f
+s-a-1                      g
+s-a-1                      b
+s-a-1                      i
+s-a-1                  i_k_B
+s-a-1                      k
+s-a-0                      e
+s-a-0                      h
+s-a-0                  h_j_B
+s-a-0                      j
+s-a-0                      l
+
+tp24
+s-a-1                      c
+s-a-1                  c_f_A
+s-a-0                      f
+s-a-0                      a
+s-a-0                      g
+s-a-0                      k
+s-a-1                  c_h_A
+s-a-1                      d
+s-a-1                      h
+s-a-1                  h_i_B
+s-a-1                      i
+s-a-1                  i_l_A
+s-a-1                      j
+s-a-1                      l
+
+tp25
+s-a-1                      c
+s-a-1                  c_f_A
+s-a-0                      f
+s-a-0                      a
+s-a-0                      g
+s-a-0                      k
+s-a-1                  c_h_A
+s-a-1                      d
+s-a-1                      h
+s-a-1                  h_i_B
+s-a-1                      i
+s-a-1                  i_l_A
+s-a-1                  h_j_B
+s-a-1                      j
+s-a-1                      l
+
+tp26
+s-a-0                      k
+s-a-0                      b
+s-a-0                      d
+s-a-0                      h
+s-a-0                  h_i_B
+s-a-0                      i
+s-a-0                  i_l_A
+s-a-0                      l
+
+tp27
+s-a-0                      k
+s-a-0                      l
+
+tp28
+s-a-0                      b
+s-a-0                      c
+s-a-0                  c_h_A
+s-a-0                      h
+s-a-0                  h_i_B
+s-a-0                      i
+s-a-0                  i_k_B
+s-a-0                      k
+s-a-0                  i_l_A
+s-a-0                      l
+
+tp29
+s-a-0                      b
+s-a-0                      c
+s-a-0                  c_h_A
+s-a-0                      h
+s-a-0                  h_i_B
+s-a-0                      i
+s-a-0                  i_k_B
+s-a-0                      k
+s-a-0                      l
+
+tp30
+s-a-0                      b
+s-a-0                      h
+s-a-0                  h_i_B
+s-a-0                      i
+s-a-0                  i_k_B
+s-a-0                      k
+s-a-0                  i_l_A
+s-a-0                      l
+
+tp31
+s-a-0                      b
+s-a-0                      h
+s-a-0                  h_i_B
+s-a-0                      i
+s-a-0                  i_k_B
+s-a-0                      k
+s-a-0                      l
