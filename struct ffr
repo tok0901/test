@@ -1,0 +1,22 @@
+//---------------------------------------------------
+// 【組合せ回路用】FFR構造体 [PO⇒STEM(レベル降順)の順番]
+//---------------------------------------------------
+typedef struct FoutFreeRegion{
+	int						ffr_id;				//FFRのID
+	int						Reconv;				//再収斂フラグ	{YES, NO, UK(経路によっては再収斂したりしなかったり)}
+	int						n_out;				//他FFRへの出力数
+	struct FoutFreeRegion	**out;				//他出力FFRへのポインタ
+	int						n_in;				//他FFRへの入力数
+	struct FoutFreeRegion	**in;				//他入力FFRへのポインタ
+	int						n_pi;				//FFR内の外部入力数
+	int						n_in_net;			//FFR内の入力数(入力はINとFOUTブランチの2種類　※他FFRからの入力では無い)
+	NLIST					*FoutStem;			//FOUT_STEMへのポインタ
+	int						n_fault;			//FFR内に含まれる故障数						※0縮退と1縮退の両方をカウント
+	int						n_det_fault;		//FFR内で検出した総故障数(初期テスト集合)	※1故障複数カウント
+	int						n_detect;			//FFR内で検出した故障数(初期テスト集合)		※1故障1カウント
+	int						n_xid_detect;		//FFR内で検出した故障数(X抽出後テスト集合)	※1故障1カウント
+	BIT_INT					*det_tp;			//FFR内の故障が検出されたパターンにフラグ
+	unsigned int			flag;				//再収斂解析で使用するフラグ
+}FFR;
+
+FFR *ffr;
