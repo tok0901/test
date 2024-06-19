@@ -7,14 +7,14 @@
 #include "Queue.h"
 #include "Command.h"
 #include "Fault_dic.h"
-#include "module.h"
+#include "FFR.h"
 
 int input_f(char* testfile, char* pinfile, char* vfile) {
 
 	FILE* fp_test, * fp_pin;
 	fp_test = fopen(testfile, "r");
 	fp_pin = fopen(pinfile, "r");
-	int sim_test = 64;
+	int i,sim_test = 64;
 
 	if (fp_test == NULL) {
 		printf("テスト集合ファイルが読み込めません\n");
@@ -34,7 +34,6 @@ int input_f(char* testfile, char* pinfile, char* vfile) {
 
 
 	//ピン情報格納配列の領域確保
-	int i;
 	Str_pin = (char**)malloc(sizeof(char*) * n_pi);
 	for (i = 0; i < n_pi; i++) {
 		Str_pin[i] = (char*)malloc(sizeof(char) * 50);
@@ -95,8 +94,14 @@ int input_f(char* testfile, char* pinfile, char* vfile) {
 		nl[i].detec = (int*)malloc(sizeof(int) * sim_test);
 	}
 
-	//故障辞書配列の領域確保
+	//故障辞書配列の領域確保,初期化
 	dic = (DICT*)malloc(sizeof(DICT) * n_test);
+	for (int test_number = 0; test_number < n_test; test_number++) {
+		dic[test_number].tp = test_number;
+		dic[test_number].fault = (NLIST**)malloc(sizeof(NLIST*) * n_net);
+		dic[test_number].saf_flag = (int*)malloc(sizeof(int) * n_net);
+		dic[test_number].n_fault = 0;
+	}
 
 	fclose(fp_test);
 
