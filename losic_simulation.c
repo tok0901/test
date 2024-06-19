@@ -7,10 +7,14 @@
 #include "Queue.h"
 #include "Command.h"
 #include "Fault_dic.h"
-#include "module.h"
+#include "FFR.h"
 
 #define _CRTSECURE_NO_WARNINGS
 #pragma warning(disable:4996)
+
+//プロトタイプ宣言
+//正常値算出関数
+void gate_calc(int tst_number, int net_number, NLIST** sort_net);
 
 //test_number:参照中のテストパターン番号
 //tst_number:論理値格納配列の要素番号
@@ -19,6 +23,7 @@ int losic_simulation(int test_number, int sim_test, NLIST** sort_net) {
 
 	int i, x, j, m, atoi_value;
 
+	//外部入力線へテストパターン印加
 	for (i = 0; i < sim_test; i++) {//テストパターン数分繰り返す
 
 		for (x = 0; x < n_pi; x++) {//格納論理値配列に論理値を格納する
@@ -51,20 +56,30 @@ int losic_simulation(int test_number, int sim_test, NLIST** sort_net) {
 	}
 
 	int tst_number,net_number;
-
-	for (tst_number=0; tst_number < sim_test; tst_number++) {	//テストパターン数回
+	//論理シミュレーション
+	for (tst_number=0; tst_number < sim_test; tst_number++) {		//テストパターン数回
 
 		printf("tp%d\n\n", tst_number+test_number);
 
 		for (net_number = 0; net_number < n_pi; net_number++) {
-			printf("%s\t%d\n", pi[net_number]->name, pi[net_number]->value[tst_number]);
+
+			pi[net_number]->detec[tst_number] = 0;					//detectability初期化
+			printf("%s\t%d\tdetectability:%d\n", pi[net_number]->name, pi[net_number]->value[tst_number],pi[net_number]->detec[tst_number]);
+
 		}
 
 		for (net_number = n_pi; net_number < n_net; net_number++) {	//信号線数回
 
-			gate_calc(tst_number, net_number, sort_net);
+			gate_calc(tst_number, net_number, sort_net);			//正常値算出
 
-			printf("%s\t%d\n", sort_net[net_number]->name, sort_net[net_number]->value[tst_number]);
+			if (sort_net[net_number]->n_out <= 0){					//外部出力線にはdetectability=1
+				sort_net[net_number]->detec[tst_number] = 1; 
+			}
+			else { 
+				sort_net[net_number]->detec[tst_number] = 0;		//detectability初期化
+			}			//detectability初期化
+
+			printf("%s\t%d\t detectability:%d\n", sort_net[net_number]->name, sort_net[net_number]->value[tst_number],sort_net[net_number]->detec[tst_number]);
 		}
 
 		printf("\n");
