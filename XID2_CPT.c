@@ -1,661 +1,299 @@
-//------------------------------------------------------------------------
-//File name : SAF_2v_CPT.c
-//Date : 2012/1/16
-//Designer : H.Yamazaki
-//Ver : 0.01
-//------------------------------------------------------------------------
-#include	<stdio.h>
-#include    <stdlib.h>
-#include	"../../Netlist/netlist.h"
-#include	"../../Lib/bit_tp.h"
-#include	"../../Lib/bit_int.h"
-#include	"../../StandardHead.h"
-#include	"../../option.h"
+#include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-//---------------------------------------------------------------------
-// プロトタイプ宣言
-//---------------------------------------------------------------------
-void SAF_2v_CPT0(int , unsigned int , NLIST *);
-void SAF_2v_CPT1(int , unsigned int , NLIST *);
+#include "Netlist.h"
+#include "Queue.h"
+#include "Command.h"
+#include "Fault_dic.h"
+#include "FFR.h"
 
-//---------------------------------------------------------------------
-// 定義
-//---------------------------------------------------------------------
-//-----------------
-//    X-buf   P-buf|
-//-----------------|
-// 0 |   0  |  1   | 
-// 1 |   1  |  0   |
-// X |   1  |  1   |
-// -----------------
-//------------------------------------------------------------------------
-//  外部関数
-//------------------------------------------------------------------------
-//------------------------------------------------------------------------------------
-//  関数名 : SAF_2v_CPT0
-//  機  能 : 2値縮退故障クリティカルパストレーシング
-//  戻り値 : なし
-//  引  数 : ffr_id(FFR番号), tp_id(テストパターンの何番目か), t_net(CPTを始める信号線[=FFRの先頭])
-//------------------------------------------------------------------------------------
-void	SAF_2v_CPT0(int ffr_id, unsigned int tp_id, NLIST *t_net){
 
-	int i;
-	int	n_contorolling=0;	//入力の制御値の本数
-	int	in;					//t_netのi番目(制御値の場所を格納)
+int SAF_CPT1(int test_number,int tst_number,NLIST* sim_net) {
 
-	switch(t_net->type){
-		//********************************************************************
-		case BUF:
-			//-----------------------------------------------------------
-			// 出力=0(入力の1縮退故障が検出可能)
-			//-----------------------------------------------------------
-			//        |＼
-			//        |  ＼
-			//   0 ---|BUF >--- 0
-			//        |  ／
-			//        |／
+	int n_ctr_value = 0, cpt_number, test_dic = test_number + tst_number, net_dic = dic[test_dic].n_fault;
 
-			//FFR内の検出故障数更新
-			ffr[ffr_id].n_detect++;
-	
-			//対象信号線の1縮退故障の検出回数更新
-			t_net->in[0]->det_sf1++;
+	//n_ctr_value:制御値の数,  cpt_number:CPTを適用する入力信号線id,  test_dic:故障辞書配列の要素番号(テストパターン番号),  net_dic:検出故障の要素番号
 
-			//故障辞書にフラグ立て
-			Set_NINT_One(fdic_sa1[tp_id], t_net->in[0]->n);
+	sim_net->detec[tst_number] = 1;			//検出可能な故障としてdetectabilityへフラグ立て
 
-			//さらに入力信号線をCPT
-			SAF_2v_CPT0(ffr_id, tp_id, t_net->in[0]);
+	dic[test_dic].fault[net_dic] = sim_net;	//検出故障信号線保存
 
+	dic[test_dic].saf_flag[net_dic] = 0;	//検出故障値保存
+
+	dic[test_dic].n_fault++;				//検出故障数インクリメント
+
+	sim_net->sim_fault0_flag = 1;			//0縮退故障検出フラグ立て
+
+	switch (sim_net->type) {
+
+		case BUF:	//正常値1の入力線にCPT
+
+			if (SAF_CPT1(test_number, tst_number, sim_net->in[0]) != 1) {
+				return 0;
+			}
 		break;
-		//********************************************************************
-		case INV:
-			//-----------------------------------------------------------
-			// 出力=0(入力の0縮退故障が検出可能)
-			//-----------------------------------------------------------
-			//        |＼
-			//        |  ＼
-			//   1 ---|INV >○-- 0
-			//        |  ／
-			//        |／
 
-			//FFR内の検出故障数更新
-			ffr[ffr_id].n_detect++;
-	
-			//対象信号線の0縮退故障の検出回数更新
-			t_net->in[0]->det_sf0++;
+		case INV:	//正常値0の入力線にCPT
 
-			//故障辞書にフラグ立て
-			Set_NINT_One(fdic_sa0[tp_id], t_net->in[0]->n);
-
-			//さらに入力信号線をCPT
-			SAF_2v_CPT1(ffr_id, tp_id, t_net->in[0]);
-
+			if (SAF_CPT0(test_number, tst_number, sim_net->in[0]) != 1) {
+				return 0;
+			}
 		break;
-		//********************************************************************
-		case AND:
-			//-----------------------------------------------------------
-			// 出力=0(入力の『制御値0の本数』を確認)
-			//-----------------------------------------------------------
-			//       ＿＿
-			//   0 --|   ＼
-			//   1 --| AND│--- 0
-			//   1 --|   ／
-			//       ￣￣
-
-			for(i=0; i<t_net->n_in; i++){
 		
-				//入力信号線が制御値:0
-				if( Get_NBit_Xbuf(t_net->in[i]->nval, tp_id)==0 ){
-					n_contorolling++;
-					in = i;
-			
-					//入力信号線に制御値が2個以上存在
-					if(n_contorolling >= 2){
-						break;	//故障検出不可能
+		case AND:	//全ての非制御値1の入力線にCPT
+
+			for (int in_number = 0; in_number < sim_net->n_in; in_number++) {
+
+				if (SAF_CPT1(test_number, tst_number, sim_net->in[in_number]) != 1) {
+					return 0;
+				}
+			}
+		break;
+		
+		case NAND:	//1本のみの制御値0の入力線にCPT
+
+			for (int in_number = 0; in_number < sim_net->n_in; in_number++) {
+
+				if (sim_net->in[in_number]->value[tst_number] == 0) {
+					n_ctr_value++;
+					cpt_number = in_number;
+
+					if (n_ctr_value >= 2) {
+						break;
+					}
+				}
+
+			}
+
+			if (n_ctr_value == 1) {
+
+				if (SAF_CPT0(test_number, tst_number, sim_net->in[cpt_number]) != 1) {
+					return 0;
+				}
+			}
+		break;
+
+		case OR:	//1本のみの制御値1の入力線にCPT
+
+			for (int in_number = 0; in_number < sim_net->n_in; in_number++) {
+
+				if (sim_net->in[in_number]->value[tst_number] == 1) {
+					n_ctr_value++;
+					cpt_number = in_number;
+
+					if (n_ctr_value >= 2) {
+						break;
+					}
+				}
+
+			}
+
+			if (n_ctr_value == 1) {
+
+				if (SAF_CPT1(test_number, tst_number, sim_net->in[cpt_number]) != 1) {
+					return 0;
+				}
+			}
+		break;
+
+		case NOR:	//全ての非制御値0の入力線CPT
+
+			for (int in_number = 0; in_number < sim_net->n_in; in_number++) {
+
+				if (SAF_CPT0(test_number, tst_number, sim_net->in[in_number]) != 1) {
+					return 0;
+				}
+			}
+		break;
+		
+		case EXOR:	//全ての入力線にCPT
+
+			for (int in_number = 0; in_number < sim_net->n_in; in_number++) {
+
+				if (sim_net->in[in_number]->value[tst_number] == 0) {
+
+					if (SAF_CPT0(test_number, tst_number, sim_net->in[in_number]) != 1) {
+						return 0;
+					}
+				}
+
+				else if (sim_net->in[in_number]->value[tst_number] == 1) {
+
+					if (SAF_CPT1(test_number, tst_number, sim_net->in[in_number]) != 1) {
+						return 0;
 					}
 				}
 			}
-
-			//-----------------------------------------------------------
-			// 入力信号線の『制御値が1本』なら故障検出可能
-			//-----------------------------------------------------------
-			if(n_contorolling==1){
-
-				//FFR内の検出故障数更新
-				ffr[ffr_id].n_detect++;
-	
-				//対象信号線の1縮退故障の検出回数更新
-				t_net->in[in]->det_sf1++;
-
-				//故障辞書にフラグ立て
-				Set_NINT_One(fdic_sa1[tp_id], t_net->in[in]->n);
-
-				//入力信号線のさらに入力信号線をCPT
-				SAF_2v_CPT0(ffr_id, tp_id, t_net->in[in]);
-			}
-			
 		break;
-		//********************************************************************
-		case NAND:
-			//-----------------------------------------------------------
-			// 出力=0(入力信号線は全て非制御値⇒入力の0縮退故障が検出可能)
-			//-----------------------------------------------------------
-			//       ＿＿
-			//   1 --|   ＼
-			//   1 --|NAND│○-- 0
-			//   1 --|   ／
-			//       ￣￣      ※全入力信号線=1 (非制御値)
 
-			for(i=0; i<t_net->n_in; i++){
+		case EXNOR:	//全ての入力線にCPT
 
-				//FFR内の検出故障数更新
-				ffr[ffr_id].n_detect++;
-	
-				//対象信号線の0縮退故障の検出回数更新
-				t_net->in[i]->det_sf0++;
+			for (int in_number = 0; in_number < sim_net->n_in; in_number++) {
 
-				//故障辞書にフラグ立て
-				Set_NINT_One(fdic_sa0[tp_id], t_net->in[i]->n);
+				if (sim_net->in[in_number]->value[tst_number] == 0) {
 
-				//さらに入力信号線をCPT
-				SAF_2v_CPT1(ffr_id, tp_id, t_net->in[i]);
-			}
+					if (SAF_CPT0(test_number, tst_number, sim_net->in[in_number]) != 1) {
+						return 0;
+					}
+				}
 
-		break;
-		//********************************************************************
-		case OR:
-			//-----------------------------------------------------------
-			// 出力=0(入力信号線は全て非制御値⇒入力の1縮退故障が検出可能)
-			//-----------------------------------------------------------
-			//       ＿＿
-			//   0 --＼   ＼
-			//   0 ----) OR >--- 0
-			//   0 --／   ／
-			//       ￣￣      ※全入力信号線=0 (非制御値)
+				else if (sim_net->in[in_number]->value[tst_number] == 1) {
 
-			for(i=0; i<t_net->n_in; i++){
-
-				//FFR内の検出故障数更新
-				ffr[ffr_id].n_detect++;
-	
-				//対象信号線の1縮退故障の検出回数更新
-				t_net->in[i]->det_sf1++;
-
-				//故障辞書にフラグ立て
-				Set_NINT_One(fdic_sa1[tp_id], t_net->in[i]->n);
-
-				//さらに入力信号線をCPT
-				SAF_2v_CPT0(ffr_id, tp_id, t_net->in[i]);
-			}
-
-		break;
-		//********************************************************************
-		case NOR:
-			//-----------------------------------------------------------
-			// 出力=0(入力の『制御値0の本数』を確認)
-			//-----------------------------------------------------------
-			//       ＿＿
-			//   1 --＼   ＼
-			//   0 ----)NOR >○-- 0
-			//   0 --／   ／
-			//       ￣￣
-
-			for(i=0; i<t_net->n_in; i++){
-		
-				//入力信号線が制御値:1
-				if( Get_NBit_Xbuf(t_net->in[i]->nval, tp_id)==1 ){
-					n_contorolling++;
-					in = i;
-			
-					//入力信号線に制御値が2個以上存在
-					if(n_contorolling >= 2){
-						break;	//故障検出不可能
+					if (SAF_CPT1(test_number, tst_number, sim_net->in[in_number]) != 1) {
+						return 0;
 					}
 				}
 			}
-
-			//-----------------------------------------------------------
-			// 入力信号線の『制御値が1本』なら故障検出可能
-			//-----------------------------------------------------------
-			if(n_contorolling==1){
-
-				//FFR内の検出故障数更新
-				ffr[ffr_id].n_detect++;
-	
-				//対象信号線の0縮退故障の検出回数更新
-				t_net->in[in]->det_sf0++;
-
-				//故障辞書にフラグ立て
-				Set_NINT_One(fdic_sa0[tp_id], t_net->in[in]->n);
-
-				//入力信号線のさらに入力信号線をCPT
-				SAF_2v_CPT1(ffr_id, tp_id, t_net->in[in]);
-			}
-
 		break;
-		//********************************************************************
-		case EXOR:
-			//-----------------------------------------------------------
-			// 出力=0 (※2入力のみなので，入力信号線は全て検出可能)
-			//-----------------------------------------------------------
-			//       ＿＿＿                     ＿＿＿
-			//   0 --＼    ＼               1 --＼    ＼
-			//         ))EXOR>--- 0               ))EXOR>--- 0
-			//   0 --／    ／               1 --／    ／
-			//       ￣￣￣                     ￣￣￣  
-	
-			for(i=0; i<t_net->n_in; i++){
-				//----------------------------------------
-				// 入力信号線=0 (1縮退故障が検出可能)
-				//----------------------------------------
-				if( Get_NBit_Xbuf(t_net->in[i]->nval, tp_id)==0 ){
 
-					//FFR内の検出故障数更新
-					ffr[ffr_id].n_detect++;
-	
-					//対象信号線の1縮退故障の検出回数更新
-					t_net->in[i]->det_sf1++;
-
-					//故障辞書にフラグ立て
-					Set_NINT_One(fdic_sa1[tp_id], t_net->in[i]->n);
-
-					//入力信号線のさらに入力信号線をCPT
-					SAF_2v_CPT0(ffr_id, tp_id, t_net->in[i]);
-				}
-
-				//----------------------------------------
-				// 入力信号線=1 (0縮退故障が検出可能)
-				//----------------------------------------
-				else if( Get_NBit_Xbuf(t_net->in[i]->nval, tp_id)==1 ){
-
-					//FFR内の検出故障数更新
-					ffr[ffr_id].n_detect++;
-	
-					//対象信号線の0縮退故障の検出回数更新
-					t_net->in[i]->det_sf0++;
-
-					//故障辞書にフラグ立て
-					Set_NINT_One(fdic_sa0[tp_id], t_net->in[i]->n);
-
-					//入力信号線のさらに入力信号線をCPT
-					SAF_2v_CPT1(ffr_id, tp_id, t_net->in[i]);
-				}
-			}
-
-		break;
-		//********************************************************************
-		case EXNOR:
-			//-----------------------------------------------------------
-			// 出力=0 (※2入力のみなので，入力信号線は全て検出可能)
-			//-----------------------------------------------------------
-			//       ＿＿＿                     ＿＿＿
-			//   1 --＼    ＼               0 --＼    ＼
-			//        ))EXNOR>○-- 0             ))EXNOR>○-- 0
-			//   0 --／    ／               1 --／    ／
-			//       ￣￣￣                     ￣￣￣  
-	
-			for(i=0; i<t_net->n_in; i++){
-				//----------------------------------------
-				// 入力信号線=0 (1縮退故障が検出可能)
-				//----------------------------------------
-				if( Get_NBit_Xbuf(t_net->in[i]->nval, tp_id)==0 ){
-
-					//FFR内の検出故障数更新
-					ffr[ffr_id].n_detect++;
-	
-					//対象信号線の1縮退故障の検出回数更新
-					t_net->in[i]->det_sf1++;
-
-					//故障辞書にフラグ立て
-					Set_NINT_One(fdic_sa1[tp_id], t_net->in[i]->n);
-
-					//入力信号線のさらに入力信号線をCPT
-					SAF_2v_CPT0(ffr_id, tp_id, t_net->in[i]);
-				}
-
-				//----------------------------------------
-				// 入力信号線=1 (0縮退故障が検出可能)
-				//----------------------------------------
-				else if( Get_NBit_Xbuf(t_net->in[i]->nval, tp_id)==1 ){
-
-					//FFR内の検出故障数更新
-					ffr[ffr_id].n_detect++;
-	
-					//対象信号線の0縮退故障の検出回数更新
-					t_net->in[i]->det_sf0++;
-
-					//故障辞書にフラグ立て
-					Set_NINT_One(fdic_sa0[tp_id], t_net->in[i]->n);
-
-					//入力信号線のさらに入力信号線をCPT
-					SAF_2v_CPT1(ffr_id, tp_id, t_net->in[i]);
-				}
-			}
-		break;
-		//********************************************************************
 	}
 
+	return 1;
 
-}//END
+}
 
-//******************************************************************************
-//******************************************************************************
-//******************************************************************************
-//------------------------------------------------------------------------------------
-//  関数名 : SAF_2v_CPT1
-//  機  能 : 2値縮退故障クリティカルパストレーシング
-//  戻り値 : なし
-//  引  数 : ffr_id(FFR番号), tp_id(テストパターンの何番目か), t_net(CPTを始める信号線[=FFRの先頭])
-//------------------------------------------------------------------------------------
-void	SAF_2v_CPT1(int ffr_id, unsigned int tp_id, NLIST *t_net){
 
-	int i;
-	int	n_contorolling=0;	//入力の制御値の本数
-	int	in;					//t_netのi番目(制御値の場所を格納)
 
-	switch(t_net->type){
-		//********************************************************************
-		case BUF:
-			//-----------------------------------------------------------
-			// 出力=1(入力の0縮退故障が検出可能)
-			//-----------------------------------------------------------
-			//        |＼
-			//        |  ＼
-			//   1 ---|BUF >--- 1
-			//        |  ／
-			//        |／
+int SAF_CPT0(int test_number, int tst_number, NLIST* sim_net) {
 
-			//FFR内の検出故障数更新
-			ffr[ffr_id].n_detect++;
-	
-			//対象信号線の0縮退故障の検出回数更新
-			t_net->in[0]->det_sf0++;
+	int n_ctr_value = 0, cpt_number, test_dic = test_number + tst_number, net_dic = dic[test_dic].n_fault;
 
-			//故障辞書にフラグ立て
-			Set_NINT_One(fdic_sa0[tp_id], t_net->in[0]->n);
+	//n_ctr_value:制御値の数,  cpt_number:CPTを適用する入力信号線id,  test_dic:故障辞書配列の要素番号(テストパターン番号),  net_dic:検出故障の要素番号
 
-			//さらに入力信号線をCPT
-			SAF_2v_CPT1(ffr_id, tp_id, t_net->in[0]);
+	sim_net->detec[tst_number] = 1;			//検出可能な故障としてdetectabilityへフラグ立て
 
+	dic[test_dic].fault[net_dic] = sim_net;	//検出故障信号線保存
+
+	dic[test_dic].saf_flag[net_dic] = 1;	//検出故障値保存
+
+	dic[test_dic].n_fault++;				//検出故障数インクリメント
+
+	sim_net->sim_fault1_flag = 1;			//1縮退故障検出フラグ立て
+
+	switch (sim_net->type) {
+
+		case BUF:	//正常値0の入力線にCPT
+
+			if (SAF_CPT0(test_number, tst_number, sim_net->in[0]) != 1) {
+				return 0;
+			}
 		break;
-		//********************************************************************
-		case INV:
-			//-----------------------------------------------------------
-			// 出力=0(入力の0縮退故障が検出可能)
-			//-----------------------------------------------------------
-			//        |＼
-			//        |  ＼
-			//   0 ---|INV >○-- 1
-			//        |  ／
-			//        |／
 
-			//FFR内の検出故障数更新
-			ffr[ffr_id].n_detect++;
-	
-			//対象信号線の1縮退故障の検出回数更新
-			t_net->in[0]->det_sf1++;
+		case INV:	//正常値1の入力線にCPT
 
-			//故障辞書にフラグ立て
-			Set_NINT_One(fdic_sa1[tp_id], t_net->in[0]->n);
-
-			//さらに入力信号線をCPT
-			SAF_2v_CPT0(ffr_id, tp_id, t_net->in[0]);
-
+			if (SAF_CPT1(test_number, tst_number, sim_net->in[0]) != 1) {
+				return 0;
+			}
 		break;
-		//********************************************************************
-		case AND:
-			//-----------------------------------------------------------
-			// 出力=1(入力信号線は全て非制御値⇒入力の0縮退故障が検出可能)
-			//-----------------------------------------------------------
-			//       ＿＿
-			//   1 --|   ＼
-			//   1 --| AND│--- 1
-			//   1 --|   ／
-			//       ￣￣      ※全入力信号線=1 (非制御値)
 
-			for(i=0; i<t_net->n_in; i++){
+		case AND:	//1本のみの制御値0の入力線にCPT
 
-				//FFR内の検出故障数更新
-				ffr[ffr_id].n_detect++;
-	
-				//対象信号線の0縮退故障の検出回数更新
-				t_net->in[i]->det_sf0++;
+			for (int in_number=0; in_number < sim_net->n_in; in_number++) {
 
-				//故障辞書にフラグ立て
-				Set_NINT_One(fdic_sa0[tp_id], t_net->in[i]->n);
+				if (sim_net->in[in_number]->value[tst_number] == 0) {
+					n_ctr_value++;
+					cpt_number = in_number;
 
-				//さらに入力信号線をCPT
-				SAF_2v_CPT1(ffr_id, tp_id, t_net->in[i]);
+					if (n_ctr_value >= 2) {
+						break;
+					}
+				}
+
 			}
 
-		break;
-		//********************************************************************
-		case NAND:
-			//-----------------------------------------------------------
-			// 出力=1(入力の『制御値0の本数』を確認)
-			//-----------------------------------------------------------
-			//       ＿＿
-			//   0 --|   ＼
-			//   1 --|NAND│○-- 1
-			//   1 --|   ／
-			//       ￣￣
+			if (n_ctr_value == 1) {
 
-			for(i=0; i<t_net->n_in; i++){
-		
-				//入力信号線が制御値:0
-				if( Get_NBit_Xbuf(t_net->in[i]->nval, tp_id)==0 ){
-					n_contorolling++;
-					in = i;
-			
-					//入力信号線に制御値が2個以上存在
-					if(n_contorolling >= 2){
-						break;	//故障検出不可能
+				if (SAF_CPT0(test_number, tst_number, sim_net->in[cpt_number]) != 1) {
+					return 0;
+				}
+			}
+		break;
+
+		case NAND:	//全ての非制御値1の入力線にCPT
+
+			for (int in_number=0; in_number < sim_net->n_in; in_number++) {
+
+				if (SAF_CPT1(test_number, tst_number, sim_net->in[in_number]) != 1) {
+					return 0;
+				}
+			}
+		break;
+
+		case OR:	//全ての非制御値0の入力線にCPT
+			for (int in_number = 0; in_number < sim_net->n_in; in_number++) {
+
+				if (SAF_CPT0(test_number, tst_number, sim_net->in[in_number]) != 1) {
+					return 0;
+				}
+			}
+			break;
+
+		case NOR:	//1本のみの制御値1の入力戦にCPT
+			for (int in_number = 0; in_number < sim_net->n_in; in_number++) {
+
+				if (sim_net->in[in_number]->value[tst_number] == 1) {
+					n_ctr_value++;
+					cpt_number = in_number;
+
+					if (n_ctr_value >= 2) {
+						break;
+					}
+				}
+
+			}
+
+			if (n_ctr_value == 1) {
+
+				if (SAF_CPT1(test_number, tst_number, sim_net->in[cpt_number]) != 1) {
+					return 0;
+				}
+			}
+		break;
+
+		case EXOR:	//全ての入力線にCPT
+
+			for (int in_number = 0; in_number < sim_net->n_in; in_number++) {
+
+				if (sim_net->in[in_number]->value[tst_number] == 0) {
+
+					if (SAF_CPT0(test_number, tst_number, sim_net->in[in_number]) != 1) {
+						return 0;
+					}
+				}
+
+				else if (sim_net->in[in_number]->value[tst_number] == 1) {
+
+					if (SAF_CPT1(test_number, tst_number, sim_net->in[in_number]) != 1) {
+						return 0;
 					}
 				}
 			}
+		break;	
 
-			//-----------------------------------------------------------
-			// 入力信号線の『制御値が1本』なら故障検出可能
-			//-----------------------------------------------------------
-			//       ＿＿
-			//   0 --|   ＼
-			//   1 --|NAND│○-- 1
-			//   1 --|   ／
-			//       ￣￣
-			if(n_contorolling==1){
+		case EXNOR:	//全ての入力線にCPT			
 
-				//FFR内の検出故障数更新
-				ffr[ffr_id].n_detect++;
-	
-				//対象信号線の1縮退故障の検出回数更新
-				t_net->in[in]->det_sf1++;
+			for (int in_number = 0; in_number < sim_net->n_in; in_number++) {
 
-				//故障辞書にフラグ立て
-				Set_NINT_One(fdic_sa1[tp_id], t_net->in[in]->n);
+				if (sim_net->in[in_number]->value[tst_number] == 0) {
 
-				//入力信号線のさらに入力信号線をCPT
-				SAF_2v_CPT0(ffr_id, tp_id, t_net->in[in]);
-			}
+					if (SAF_CPT0(test_number, tst_number, sim_net->in[in_number]) != 1) {
+						return 0;
+					}
+				}
 
-		break;
-		//********************************************************************
-		case OR:
-			//-----------------------------------------------------------
-			// 出力=0(入力の『制御値0の本数』を確認)
-			//-----------------------------------------------------------
-			//       ＿＿
-			//   1 --＼   ＼
-			//   0 ----) OR >--- 1
-			//   0 --／   ／
-			//       ￣￣
+				else if (sim_net->in[in_number]->value[tst_number] == 1) {
 
-			for(i=0; i<t_net->n_in; i++){
-		
-				//入力信号線が制御値:1
-				if( Get_NBit_Xbuf(t_net->in[i]->nval, tp_id)==1 ){
-					n_contorolling++;
-					in = i;
-			
-					//入力信号線に制御値が2個以上存在
-					if(n_contorolling >= 2){
-						break;	//故障検出不可能
+					if (SAF_CPT1(test_number, tst_number, sim_net->in[in_number]) != 1) {
+						return 0;
 					}
 				}
 			}
-
-			//-----------------------------------------------------------
-			// 入力信号線の『制御値が1本』なら故障検出可能
-			//-----------------------------------------------------------
-			//       ＿＿
-			//   1 --＼   ＼
-			//   0 ----) OR >--- 1
-			//   0 --／   ／
-			//       ￣￣
-			if(n_contorolling==1){
-
-				//FFR内の検出故障数更新
-				ffr[ffr_id].n_detect++;
-	
-				//対象信号線の0縮退故障の検出回数更新
-				t_net->in[in]->det_sf0++;
-
-				//故障辞書にフラグ立て
-				Set_NINT_One(fdic_sa0[tp_id], t_net->in[in]->n);
-
-				//入力信号線のさらに入力信号線をCPT
-				SAF_2v_CPT1(ffr_id, tp_id, t_net->in[in]);
-			}
-
 		break;
-		//********************************************************************
-		case NOR:
-			//-----------------------------------------------------------
-			// 出力=0(入力信号線は全て非制御値⇒入力の1縮退故障が検出可能)
-			//-----------------------------------------------------------
-			//       ＿＿
-			//   0 --＼   ＼
-			//   0 ----)NOR >○-- 1
-			//   0 --／   ／
-			//       ￣￣      ※全入力信号線=0 (非制御値)
 
-			for(i=0; i<t_net->n_in; i++){
-
-				//FFR内の検出故障数更新
-				ffr[ffr_id].n_detect++;
-	
-				//対象信号線の1縮退故障の検出回数更新
-				t_net->in[i]->det_sf1++;
-
-				//故障辞書にフラグ立て
-				Set_NINT_One(fdic_sa1[tp_id], t_net->in[i]->n);
-
-				//さらに入力信号線をCPT
-				SAF_2v_CPT0(ffr_id, tp_id, t_net->in[i]);
-			}
-
-		break;
-		//********************************************************************
-		case EXOR:
-			//-----------------------------------------------------------
-			// 出力=1 (※2入力のみなので，入力信号線は全て検出可能)
-			//-----------------------------------------------------------
-			//       ＿＿＿                     ＿＿＿
-			//   1 --＼    ＼               0 --＼    ＼
-			//         ))EXOR>--- 1               ))EXOR>--- 1
-			//   0 --／    ／               1 --／    ／
-			//       ￣￣￣                     ￣￣￣  
-	
-			for(i=0; i<t_net->n_in; i++){
-				//----------------------------------------
-				// 入力信号線=0 (1縮退故障が検出可能)
-				//----------------------------------------
-				if( Get_NBit_Xbuf(t_net->in[i]->nval, tp_id)==0 ){
-
-					//FFR内の検出故障数更新
-					ffr[ffr_id].n_detect++;
-	
-					//対象信号線の1縮退故障の検出回数更新
-					t_net->in[i]->det_sf1++;
-
-					//故障辞書にフラグ立て
-					Set_NINT_One(fdic_sa1[tp_id], t_net->in[i]->n);
-
-					//入力信号線のさらに入力信号線をCPT
-					SAF_2v_CPT0(ffr_id, tp_id, t_net->in[i]);
-				}
-
-				//----------------------------------------
-				// 入力信号線=1 (0縮退故障が検出可能)
-				//----------------------------------------
-				else if( Get_NBit_Xbuf(t_net->in[i]->nval, tp_id)==1 ){
-
-					//FFR内の検出故障数更新
-					ffr[ffr_id].n_detect++;
-	
-					//対象信号線の0縮退故障の検出回数更新
-					t_net->in[i]->det_sf0++;
-
-					//故障辞書にフラグ立て
-					Set_NINT_One(fdic_sa0[tp_id], t_net->in[i]->n);
-
-					//入力信号線のさらに入力信号線をCPT
-					SAF_2v_CPT1(ffr_id, tp_id, t_net->in[i]);
-				}
-			}
-
-		break;
-		//********************************************************************
-		case EXNOR:
-			//-----------------------------------------------------------
-			// 出力=1 (※2入力のみなので，入力信号線は全て検出可能)
-			//-----------------------------------------------------------
-			//       ＿＿＿                     ＿＿＿
-			//   0 --＼    ＼               1 --＼    ＼
-			//        ))EXNOR>○-- 1             ))EXNOR>○-- 1
-			//   0 --／    ／               1 --／    ／
-			//       ￣￣￣                     ￣￣￣  
-	
-			for(i=0; i<t_net->n_in; i++){
-				//----------------------------------------
-				// 入力信号線=0 (1縮退故障が検出可能)
-				//----------------------------------------
-				if( Get_NBit_Xbuf(t_net->in[i]->nval, tp_id)==0 ){
-
-					//FFR内の検出故障数更新
-					ffr[ffr_id].n_detect++;
-	
-					//対象信号線の1縮退故障の検出回数更新
-					t_net->in[i]->det_sf1++;
-
-					//故障辞書にフラグ立て
-					Set_NINT_One(fdic_sa1[tp_id], t_net->in[i]->n);
-
-					//入力信号線のさらに入力信号線をCPT
-					SAF_2v_CPT0(ffr_id, tp_id, t_net->in[i]);
-				}
-
-				//----------------------------------------
-				// 入力信号線=1 (0縮退故障が検出可能)
-				//----------------------------------------
-				else if( Get_NBit_Xbuf(t_net->in[i]->nval, tp_id)==1 ){
-
-					//FFR内の検出故障数更新
-					ffr[ffr_id].n_detect++;
-	
-					//対象信号線の0縮退故障の検出回数更新
-					t_net->in[i]->det_sf0++;
-
-					//故障辞書にフラグ立て
-					Set_NINT_One(fdic_sa0[tp_id], t_net->in[i]->n);
-
-					//入力信号線のさらに入力信号線をCPT
-					SAF_2v_CPT1(ffr_id, tp_id, t_net->in[i]);
-				}
-			}
-
-		break;
-		//********************************************************************
 	}
 
-}//END
+	return 1;
+
+}
