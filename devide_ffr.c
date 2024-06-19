@@ -7,7 +7,7 @@
 #include "Queue.h"
 #include "Command.h"
 #include "Fault_dic.h"
-#include "module.h"
+#include "FFR.h"
 
 int devide_ffr(NLIST** sort_net) {
 	
@@ -19,7 +19,7 @@ int devide_ffr(NLIST** sort_net) {
 
 	NLIST* signalo;
 	
-	int net_number, ffr_number, max_id = 0, number = 5;
+	int net_number, ffr_number, max_id = 0;
 	int* n_ffr_in;
 
 	//外部出力への新規ffr_id付与
@@ -53,14 +53,14 @@ int devide_ffr(NLIST** sort_net) {
 	//FFR構造体配列の領域確保
 	ffr = (FFR*)malloc(sizeof(FFR) *n_ffr);
 	for (int i = 0; i <n_ffr; i++) {
-		ffr[i].in = (FFR**)malloc(sizeof(FFR*)*number);											//FFR入力ポインタの領域確保
-		for (int j = 0; j < number; j++) {
+		ffr[i].in = (FFR**)malloc(sizeof(FFR*)*n_ffr);											//FFR入力ポインタの領域確保
+		for (int j = 0; j < n_ffr; j++) {
 			ffr[i].in[j] = NULL;
 
 		}
 
-		ffr[i].out = (FFR**)malloc(sizeof(FFR*)*number);										//FFR出力ポインタの領域確保
-		for (int j = 0; j < number; j++) {
+		ffr[i].out = (FFR**)malloc(sizeof(FFR*)*n_ffr);										//FFR出力ポインタの領域確保
+		for (int j = 0; j < n_ffr; j++) {
 			ffr[i].out[j] = NULL;
 		}
 
@@ -129,11 +129,11 @@ int devide_ffr(NLIST** sort_net) {
 		printf("FFR%d\n他FFRからの入力数:%d\t他FFRへの出力数:%d\n", ffr[ffr_number].ffr_id, ffr[ffr_number].n_in, ffr[ffr_number].n_out);
 
 		printf("入力数:%d\n", ffr[ffr_number].n_in_net);
-		printf("入力ffr:");
+		/*printf("入力ffr:");
 		for (int in_num = 0; in_num < ffr[ffr_number].n_in; in_num++) {
 
 			printf("%d,", ffr[ffr_number].in[in_num]->ffr_id);
-		}
+		}*/
 	}
 
 
