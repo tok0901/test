@@ -22,19 +22,19 @@ int devide_ffr(NLIST** sort_net) {
 	int net_number, ffr_number, max_id = 0;
 	int* n_ffr_in;
 
-	//外部出力への新規ffr_id付与
-	for (net_number = n_po-1; net_number >=0; net_number--) {
-		
-		po[net_number]->ffr_id = max_id;
-		queue_enqueue(po[net_number]);
-		max_id++;
+	////外部出力への新規ffr_id付与
+	//for (net_number = n_po-1; net_number >=0; net_number--) {
+	//	
+	//	po[net_number]->ffr_id = max_id;
+	//	queue_enqueue(po[net_number]);
+	//	max_id++;
 
-	}
+	//}
 
 	//ffr_id付与
-	for (net_number = n_net - n_po - 1; net_number >= 0; net_number--) {						//外部出力以外の全信号線
+	for (net_number = n_net - 1; net_number >= 0; net_number--) {								//信号線数分
 
-		if (sort_net[net_number]->n_out >= 2) {													//FANOUT STEMに該当するかどうか
+		if ((sort_net[net_number]->n_out >= 2)||(sort_net[net_number]->n_out==0)) {				//PO,FOSに該当するかどうか
 												
 			sort_net[net_number]->ffr_id = max_id;	
 			queue_enqueue(sort_net[net_number]);
