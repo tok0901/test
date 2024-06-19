@@ -84,6 +84,27 @@ int main(int argc, char* argv[]) {
 		}
 	}
 
+	for (int net_number = 0; net_number < n_net; net_number++) {
+		if (sort_net[net_number]->sim_fault0_flag != 1) {
+			printf("未検出故障:s-a-0\t%s\n", sort_net[net_number]->name);
+			not_fault++;
+		}
+		if (sort_net[net_number]->sim_fault1_flag != 1) {
+			printf("未検出故障:s-a-1\t%s\n", sort_net[net_number]->name);
+			not_fault++;
+		}
+	}
+
+	double result,all_fault,n_sim_fault;
+
+	all_fault = n_net * 2;
+
+	n_sim_fault = n_net * 2 - not_fault;
+
+	result = (double)n_sim_fault / all_fault;
+
+	printf("故障検出率:%.2f％\n", result*100);
+
 	return 0;
 
 }
