@@ -216,7 +216,7 @@ void gate_calc(int tst_number, int net_number,NLIST** sort_net) {
 		}
 
 	case FOUT:
-		flag = sort_net[net_number]->in[0]->value[tst_number];
+		flag = 3;
 		break;
 
 	default:
@@ -233,7 +233,7 @@ void gate_calc(int tst_number, int net_number,NLIST** sort_net) {
 		sort_net[net_number]->value[tst_number] = 1;
 	}
 	else if (flag == 3) {
-
+		sort_net[net_number]->value[tst_number] = sort_net[net_number]->in[0]->value[tst_number];
 	}
 	else if (flag == -1) {
 		printf("信号線上に誤った値が割当てられました\n論理シミュレーション失敗\n");
