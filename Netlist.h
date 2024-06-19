@@ -66,22 +66,6 @@ typedef struct _Netlist_Format_ {
 } NLIST;
 
 
-//FFR構造体定義
-typedef struct Fanout_FreeRegion{
-
-	int						ffr_id;				//FFRのID
-	int						n_out;				//他FFRへの出力数
-	struct FoutFreeRegion** out;				//他出力FFRへのポインタ
-	int						n_in;				//他FFRへの入力数
-	struct FoutFreeRegion** in;					//他入力FFRへのポインタ
-	int						n_pi;				//FFR内の外部入力数
-	int						n_in_net;			//FFR内の入力数(入力はINとFOUTブランチの2種類　※他FFRからの入力では無い)
-	NLIST*					fos;				//FOUT_STEMへのポインタ
-
-}FFR;
-
-
-
 //------------------------------------------------------------------------
 // 外部変数
 //------------------------------------------------------------------------
@@ -129,9 +113,9 @@ NLIST** sort_net;//ソート配列
 
 int n_test;//テストパターン数
 
-int o_test;//圧縮テストパターン数
-
-int d_test;	//最終圧縮テストパターン数
+//int o_test;//圧縮テストパターン数
+//
+//int d_test;	//最終圧縮テストパターン数
 
 int not_fault; //未検出故障数
 
@@ -142,10 +126,6 @@ char** Str_pin;//外部入力ピン配列
 char** test_tbl;//論理値格納配列
 
 int n_ffr;//ffr数
-
-FFR* ffr;//FFR構造体配列
-
-DICT* dic;//故障辞書配列
 
 #define _CRTSECURE_NO_WARNINGS
 #pragma warning(disable:4996)
