@@ -7,8 +7,12 @@
 #include "Queue.h"
 #include "Command.h"
 #include "Fault_dic.h"
-#include "module.h"
+#include "FFR.h"
 
+
+//ネットリスト_レベルソート
+void quick_sort(NLIST** sort_net, int left, int right);
+void swap(NLIST** sort_net, int i, int j);
 
 int make_net(NLIST* nl) {
 
