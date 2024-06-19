@@ -20,9 +20,11 @@ int SAF_CPT1(int test_number,int tst_number,NLIST* sim_net) {
 
 	dic[test_dic].fault[net_dic] = sim_net;	//検出故障信号線保存
 
-	dic[test_dic].saf_flag[net_dic] = 0;				//検出故障値保存
+	dic[test_dic].saf_flag[net_dic] = 0;	//検出故障値保存
 
 	dic[test_dic].n_fault++;				//検出故障数インクリメント
+
+	sim_net->sim_fault0_flag = 1;			//0縮退故障検出フラグ立て
 
 	switch (sim_net->type) {
 
@@ -35,7 +37,7 @@ int SAF_CPT1(int test_number,int tst_number,NLIST* sim_net) {
 
 		case INV:	//正常値0の入力線にCPT
 
-			if (SAF_CPT1(test_number, tst_number, sim_net->in[0]) != 1) {
+			if (SAF_CPT0(test_number, tst_number, sim_net->in[0]) != 1) {
 				return 0;
 			}
 		break;
@@ -164,9 +166,11 @@ int SAF_CPT0(int test_number, int tst_number, NLIST* sim_net) {
 
 	dic[test_dic].fault[net_dic] = sim_net;	//検出故障信号線保存
 
-	dic[test_dic].saf_flag[net_dic] = 1;				//検出故障値保存
+	dic[test_dic].saf_flag[net_dic] = 1;	//検出故障値保存
 
 	dic[test_dic].n_fault++;				//検出故障数インクリメント
+
+	sim_net->sim_fault1_flag = 1;			//1縮退故障検出フラグ立て
 
 	switch (sim_net->type) {
 
