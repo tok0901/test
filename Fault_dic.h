@@ -5,6 +5,7 @@ typedef struct Fault_dic {
 	int* saf_flag;				//検出故障フラグ(0縮退故障or1縮退故障)
 	int n_fault;				//検出故障数
 	NLIST*** unconf_fault;		//未識別故障集合
+	char** po_value;			//ハッシュ値(外部出力値or剰余値)
 	int** unconf_saf_flag;		//検出未識別故障フラグ(0縮退故障or1縮退故障)
 	int n_unconf_fault;			//未識別故障数
 	//int es_flag;				//必須故障検出フラグ		1:必須故障を持つ,0:必須故障を持たない
@@ -28,3 +29,4 @@ typedef struct Unconf_Fault_Pair {
 
 HASH hash;
 
+int Pulse_Output_Value(int tst_number, NLIST** sort_net);
