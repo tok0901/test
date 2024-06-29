@@ -13,52 +13,59 @@
 //クリティカル経路導出関数
 int SAF_CPT1(int test_number, int tst_number, NLIST* sim_net);
 int SAF_CPT0(int test_number, int tst_number, NLIST* sim_net);
-int gate_calc_fault(int tst_number,NLIST* sim_net);
+int gate_calc_fault(int tst_number, NLIST* sim_net);
 
 
 
 int SAF_PPSFP(int test_number, int sim_test, FFR* ffr) {
 
-	int ffr_number, tst_number, cpt_flag;
+	int ffr_number, tst_number, cpt_flag;													//cpt_flag(0:実行無し,1:PPSFP実行,2:CPT実行)
 
 	for (ffr_number = 0; ffr_number < n_ffr; ffr_number++) {								//外部出力側のFFRからCPT実行
 
-		for (tst_number = 0; tst_number < sim_test; tst_number++) {						//パターン並列(64bit)
+		for (tst_number = 0; tst_number < sim_test; tst_number++) {							//パターン並列(64bit)
 
-			cpt_flag = 0;
-			if (ffr[ffr_number].fos->n_out >= 2) {										//対象信号線がFOSである時
+			int test_dic = test_number + tst_number;
 
-				//FoutBlanchのdetectability判定
-				for (int out_number = 0; out_number < ffr[ffr_number].fos->n_out; out_number++) {					
-					if (ffr[ffr_number].fos->out[out_number]->detec[tst_number] == 1) {			//fosの出力線がdetectability=1であるかどうか(trueならbreak→CPT実行)
+			//故障辞書内未識別故障ペア格納ハッシュ配列の領域確保
+			dic[test_dic].unconf_fault = (NLIST***)malloc(sizeof(NLIST**) * n_ffr);
+			dic[test_dic].unconf_saf_flag = (int**)malloc(sizeof(int*) * n_ffr);
+
+			cpt_flag = 0;																	//cpt_flag初期化
+
+			if (ffr[ffr_number].fos->n_out >= 2) {											//対象信号線がFOSである時
+
+				//FoutBranchのdetectability判定
+				for (int out_number = 0; out_number < ffr[ffr_number].fos->n_out; out_number++) {
+					if (ffr[ffr_number].fos->out[out_number]->detec[tst_number] == 1) {		//FoutBranchが故障伝搬経路であるかどうか(trueならbreak→PPSFP実行)
 						cpt_flag = 1;
 						break;
 					}
 				}
 			}
 
-			else {																		//対象信号線が外部出力線である時
+			else {																			//対象信号線が外部出力線である時
 				cpt_flag = 2;
 			}
 
 			if (cpt_flag = 1) {
+
 				//PPSFP実行
+				for (int net_number = 0; net_number < n_net - n_pi; net_number++) {
+					sort_net[net_number]->value_fault_flag[tst_number] = 0;					//故障検出フラグ初期化(外部出力のみ保持)
+				}
 
+				for (int out_number = 0; out_number < ffr[ffr_number].n_out; out_number++) {
 
-				for (int out_number = 0; out_number < ffr[ffr_number].fos->n_out; out_number++) {
-
-					for (int net_number = 0; net_number < n_net - n_pi; net_number++) {
-						sort_net[net_number]->value_fault_flag[tst_number] = 0;					//故障検出フラグ初期化
-					}
-
-					if (ffr[ffr_number].fos->out[out_number]->detec[tst_number] == 1) {
+					if (ffr[ffr_number].fos->out[out_number]->detec[tst_number] == 1) {		//FoutBranchから外部出力まで故障伝搬可能かどうか
+						if (gate_calc_fault(tst_number, ffr[ffr_number].fos->out[out_number]) == 1) {
+							cpt_flag = 2;
+						}
 						
-						if(gate_calc)
 					}
 				}
 			}
 
-			
 			if (cpt_flag == 2) {
 
 				//CPT実行
@@ -94,9 +101,9 @@ int SAF_PPSFP(int test_number, int sim_test, FFR* ffr) {
 
 //故障値算出関数
 
-int gate_calc_fault(int tst_number,NLIST* sim_net) {
+int gate_calc_fault(int tst_number, NLIST* sim_net) {
 
-	int flag=0,num,result; int* in_value;
+	int flag = 0, num, result; int* in_value;
 	int in_number, out_number;
 
 	if (sim_net->n_in >= 2) {
@@ -276,7 +283,7 @@ int gate_calc_fault(int tst_number,NLIST* sim_net) {
 
 	}//switch文終了
 
-	if (flag == 0) {		//故障が伝搬しなかった
+	if (flag == 0) {		//故障が外部出力まで伝搬しない
 		return 0;
 	}
 	else if (flag == 1) {	//故障が外部出力まで伝搬した
