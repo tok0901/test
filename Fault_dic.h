@@ -29,4 +29,4 @@ typedef struct Unconf_Fault_Pair {
 
 HASH hash;
 
-int Pulse_Output_Value(int tst_number, NLIST** sort_net);
+char* Pulse_Output_Value(int tst_number, NLIST** sort_net);
