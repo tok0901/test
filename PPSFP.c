@@ -13,6 +13,7 @@
 //クリティカル経路導出関数
 int SAF_CPT1(int test_number, int tst_number, NLIST* sim_net);
 int SAF_CPT0(int test_number, int tst_number, NLIST* sim_net);
+int insert_fault_index(int test_dic, char* po_temp);
 int gate_calc_fault(int tst_number, NLIST* sim_net);
 
 
@@ -28,8 +29,8 @@ int SAF_PPSFP(int test_number, int sim_test, FFR* ffr) {
 			int test_dic = test_number + tst_number;
 
 			//故障辞書内未識別故障ペア格納ハッシュ配列の領域確保
-			dic[test_dic].unconf_fault = (NLIST***)malloc(sizeof(NLIST**) * n_ffr);
-			dic[test_dic].unconf_saf_flag = (int**)malloc(sizeof(int*) * n_ffr);
+			dic[test_dic].unconf_fault = (NLIST***)malloc(sizeof(NLIST**) * 64);
+			dic[test_dic].unconf_saf_flag = (int**)malloc(sizeof(int*) * 64);
 
 			cpt_flag = 0;																	//cpt_flag初期化
 
