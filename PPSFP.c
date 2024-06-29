@@ -45,14 +45,16 @@ int SAF_PPSFP(int test_number, int sim_test, FFR* ffr) {
 			}
 
 			else {																			//対象信号線が外部出力線である時
-				cpt_flag = 2;
+				if (gate_calc_fault(tst_number, ffr[ffr_number].fos) == 1) {
+					cpt_flag = 2;
+				}
 			}
 
 			if (cpt_flag = 1) {
 
 				//PPSFP実行
-				for (int net_number = 0; net_number < n_net - n_pi; net_number++) {
-					sort_net[net_number]->value_fault_flag[tst_number] = 0;					//故障検出フラグ初期化(外部出力のみ保持)
+				for (int net_number = 0; net_number < n_net; net_number++) {
+					sort_net[net_number]->value_fault_flag[tst_number] = 0;					//故障検出フラグ初期化
 				}
 
 				for (int out_number = 0; out_number < ffr[ffr_number].n_out; out_number++) {
