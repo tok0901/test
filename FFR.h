@@ -8,7 +8,8 @@ typedef struct Fanout_FreeRegion {
 	struct FoutFreeRegion** in;					//他入力FFRへのポインタ
 	int						n_pi;				//FFR内の外部入力数
 	int						n_in_net;			//FFR内の入力数(入力はINとFOUTブランチの2種類　※他FFRからの入力では無い)
-	NLIST* fos;				//FOUT_STEMへのポインタ
+	int						po_flag;			//外部出力格納フラグ(1:FFR内に外部出力線を持つ,0:持たない)
+	NLIST* fos;									//FOUT_STEMへのポインタ
 
 }FFR;
 
