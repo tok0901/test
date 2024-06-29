@@ -9,6 +9,11 @@
 #include "Fault_dic.h"
 #include "FFR.h"
 
+int insert_fault_index(int test_dic, char* po_temp) {
+
+}
+
+
 
 int SAF_CPT1(int test_number,int tst_number,NLIST* sim_net) {
 
@@ -25,6 +30,8 @@ int SAF_CPT1(int test_number,int tst_number,NLIST* sim_net) {
 	dic[test_dic].n_fault++;				//検出故障数インクリメント
 
 	sim_net->sim_fault0_flag = 1;			//0縮退故障検出フラグ立て
+
+	printf("%s\t detect=%d\n", sim_net->name, sim_net->detec[tst_number]);
 
 	switch (sim_net->type) {
 
@@ -171,6 +178,8 @@ int SAF_CPT0(int test_number, int tst_number, NLIST* sim_net) {
 	dic[test_dic].n_fault++;				//検出故障数インクリメント
 
 	sim_net->sim_fault1_flag = 1;			//1縮退故障検出フラグ立て
+
+	printf("%s\t detect=%d\n", sim_net->name, sim_net->detec[tst_number]);
 
 	switch (sim_net->type) {
 
