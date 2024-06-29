@@ -28,25 +28,35 @@ int SAF_PPSFP(int test_number, int sim_test, FFR* ffr);
 
 int main(int argc, char* argv[]) {
 
+	//コマンド解析
 	if (command(argc, argv) !=1) {
 		printf("\n\nコマンド解析エラー\n");
 		return 0;
 	}
 
+	//ファイル入力
 	if (input_f(opt.tp, opt.pin, opt.v) !=1) {
 		printf("\n\nファイル入力エラー\n");
 		return 0;
 	}
 
+	//信号線正規化
 	if (make_net(nl) !=1) {
 		printf("\n\n信号線正規化エラー\n");
 		return 0;
 	}
 
+	//FFR分割
 	if (devide_ffr(sort_net) != 1) {
 		printf("\n\nFFR分割エラー\n");
 		return 0;
 	}
+
+	//未識別故障ペア取得
+
+	hash.unconf_fault = (NLIST***)malloc(sizeof(NLIST**) * n_net * 2);		
+	hash.n_unconf_fault = (int*)malloc(sizeof(int) * n_net * 2);
+	hash.saf_flag = (int**)malloc(sizeof(int*) * n_net * 2);
 
 	int sim_test = 64, max_test;
 	for (int test_number = 0; test_number < n_test;test_number+=sim_test) {
@@ -76,8 +86,13 @@ int main(int argc, char* argv[]) {
 
 	}
 
+
+
+
+
+	//最終結果出力
 	for (int test_number = 0; test_number < n_test; test_number++) {
-		printf("tp%d\t検出故障数:%d\n", test_number,dic[test_number].n_fault);
+		printf("\ntp%d\t検出故障数:%d\n", test_number,dic[test_number].n_fault);
 
 		for (int net_number = 0; net_number < dic[test_number].n_fault; net_number++) {
 			printf("s-a-%d\t%s\n", dic[test_number].saf_flag[net_number], dic[test_number].fault[net_number]->name);
@@ -97,13 +112,13 @@ int main(int argc, char* argv[]) {
 
 	double result,all_fault,n_sim_fault;
 
-	all_fault = n_net * 2;
+	all_fault = n_net * 2.0;
 
-	n_sim_fault = n_net * 2 - not_fault;
+	n_sim_fault = all_fault - not_fault;
 
 	result = (double)n_sim_fault / all_fault;
 
-	printf("故障検出率:%.2f％\n", result*100);
+	printf("\n故障検出率:%.2f％\n", result*100);
 
 	return 0;
 
