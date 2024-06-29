@@ -65,6 +65,7 @@ typedef struct _Netlist_Format_ {
 	//PPSFP
 	int sim_fault0_flag;				//0縮退故障検出フラグ
 	int sim_fault1_flag;				//1縮退故障検出フラグ
+	int* value_fault_flag;				//故障伝搬フラグ
 
 
 } NLIST;
