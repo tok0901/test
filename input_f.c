@@ -92,6 +92,7 @@ int input_f(char* testfile, char* pinfile, char* vfile) {
 	for (i = 0; i < n_net; i++) {
 		nl[i].value = (int*)malloc(sizeof(int) * sim_test);
 		nl[i].detec = (int*)malloc(sizeof(int) * sim_test);
+		nl[i].value_fault_flag = (int*)malloc(sizeof(int) * sim_test);
 	}
 
 	//故障辞書配列の領域確保,初期化
@@ -102,6 +103,11 @@ int input_f(char* testfile, char* pinfile, char* vfile) {
 		dic[test_number].saf_flag = (int*)malloc(sizeof(int) * n_net);
 		dic[test_number].n_fault = 0;
 	}
+
+	//未識別故障ペア格納ハッシュ配列の領域確保
+	hash.unconf_fault = (NLIST***)malloc(sizeof(NLIST**) * n_net * 2);
+	hash.saf_flag = (int**)malloc(sizeof(int*) * n_net * 2);
+
 
 	fclose(fp_test);
 
