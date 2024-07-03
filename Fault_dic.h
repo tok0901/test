@@ -7,6 +7,7 @@ typedef struct Fault_dic {
 	int* n_unconf_fault;		//未識別故障数(ハッシュ表内)
 	int n_grp;					//未識別故障集合数
 	int insert_number;			//検出故障格納インデックス番号
+	int** hash_number;			//未識別故障格納ハッシュ番号
 
 }DICT;
 
