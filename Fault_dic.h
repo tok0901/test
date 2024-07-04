@@ -33,3 +33,9 @@ HASH hash;
 //make_hash_tbl内関数プロトタイプ宣言
 char* Pulse_Output_Value(int tst_number, NLIST** sort_net);
 void hash_insert(int test_number, int tst_number, char* temp_po);
+
+//外部変数
+
+int all_conf_fault_pair;		//全識別故障ペア数
+int unconf_fault_pair;			//未識別故障ペア数
+int conf_fault_module;			//識別故障集合数
