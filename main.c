@@ -21,7 +21,10 @@ int make_net(NLIST* nl);
 int devide_ffr(NLIST** sort_net);
 int losic_simulation(int test_number, int sim_test, NLIST** sort_net);
 int SAF_PPSFP(int test_number, int sim_test, FFR* ffr);
-//int make_dic(int test_number,int sim_test,NLIST** sort_net);
+
+
+//未識別故障ペア取得
+int Confirm_Fault_Pair(HASH hash, DICT* dic);
 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -52,12 +55,7 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
-	//未識別故障ペア取得
-
-	hash.unconf_fault = (NLIST***)malloc(sizeof(NLIST**) * n_net * 2);		
-	hash.n_unconf_fault = (int*)malloc(sizeof(int) * n_net * 2);
-	hash.saf_flag = (int**)malloc(sizeof(int*) * n_net * 2);
-
+	//故障シミュレーション(PPSFP,CPT)
 	int sim_test = 64, max_test;
 	for (int test_number = 0; test_number < n_test;test_number+=sim_test) {
 
@@ -82,22 +80,43 @@ int main(int argc, char* argv[]) {
 			return 0;
 		}*/
 
-		printf("%d番目から%d番目のテストパターンによる故障検出完了\n", test_number, test_number + sim_test);
+		printf("***********************************%d番目から%d番目のテストパターンによる故障検出完了********************************\n", test_number, test_number + sim_test);
 
 	}
 
+	for (int test_number = 0; test_number<n_test; test_number++) {
 
+		printf("\n*********************************tp%d*********************************************\n", test_number);
 
+		for (int hash_number = 0; hash_number < dic[test_number].n_grp; hash_number++) {
 
+			printf("\n出力応答値:%s\n", dic[test_number].po_value[hash_number]);
 
-	//最終結果出力
-	for (int test_number = 0; test_number < n_test; test_number++) {
-		printf("\ntp%d\t検出故障数:%d\n", test_number,dic[test_number].n_fault);
+			for (int fault_number = 0; fault_number < dic[test_number].n_unconf_fault[hash_number]; fault_number++) {
 
-		for (int net_number = 0; net_number < dic[test_number].n_fault; net_number++) {
-			printf("s-a-%d\t%s\n", dic[test_number].saf_flag[net_number], dic[test_number].fault[net_number]->name);
+				if (dic[test_number].unconf_saf_flag[hash_number][fault_number] == 0) {
+					printf("s-a-0\t%s\n", dic[test_number].unconf_fault[hash_number][fault_number]->name);
+				}
+				else if (dic[test_number].unconf_saf_flag[hash_number][fault_number] == 1) {
+					printf("s-a-1\t%s\n", dic[test_number].unconf_fault[hash_number][fault_number]->name);
+				}
+
+			}
+
 		}
+
 	}
+
+
+
+	////最終結果出力
+	//for (int test_number = 0; test_number < n_test; test_number++) {
+	//	printf("\ntp%d\t検出故障数:%d\n", test_number,dic[test_number].n_fault);
+
+	//	for (int net_number = 0; net_number < dic[test_number].n_fault; net_number++) {
+	//		printf("s-a-%d\t%s\n", dic[test_number].saf_flag[net_number], dic[test_number].fault[net_number]->name);
+	//	}
+	//}
 
 	for (int net_number = 0; net_number < n_net; net_number++) {
 		if (sort_net[net_number]->sim_fault0_flag != 1) {
