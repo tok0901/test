@@ -43,7 +43,7 @@ int losic_simulation(int test_number, int sim_test, NLIST** sort_net) {
 				if (strcmp(Str_pin[j], pi[m]->name) == 0) {
 					atoi_value = atoi(test_tbl[j]);//テストパターン文字列を整数型に変換
 					pi[m]->value[i] = atoi_value;//該当する名前のピンにテストパターンの値を格納
-					printf("%s  %d\n", pi[m]->name, pi[m]->value[i]);
+					//printf("%s  %d\n", pi[m]->name, pi[m]->value[i]);
 					break;
 				}
 
@@ -64,7 +64,8 @@ int losic_simulation(int test_number, int sim_test, NLIST** sort_net) {
 		for (net_number = 0; net_number < n_pi; net_number++) {
 
 			pi[net_number]->detec[tst_number] = 0;					//detectability初期化
-			printf("%s\t%d\tdetectability:%d\n", pi[net_number]->name, pi[net_number]->value[tst_number],pi[net_number]->detec[tst_number]);
+			pi[net_number]->value_fault_flag[tst_number] = 0;		//故障伝搬フラグ初期化
+			printf("%s\t%d\n", pi[net_number]->name, pi[net_number]->value[tst_number]);
 
 		}
 
@@ -77,16 +78,17 @@ int losic_simulation(int test_number, int sim_test, NLIST** sort_net) {
 			}
 			else { 
 				sort_net[net_number]->detec[tst_number] = 0;		//detectability初期化
-			}			//detectability初期化
+			}			
 
-			printf("%s\t%d\t detectability:%d\n", sort_net[net_number]->name, sort_net[net_number]->value[tst_number],sort_net[net_number]->detec[tst_number]);
+			sort_net[net_number]->value_fault_flag[tst_number] = 0;	//故障伝搬フラグ初期化
+			printf("%s\t%d\n", sort_net[net_number]->name, sort_net[net_number]->value[tst_number]);
 		}
 
 		printf("\n");
 
 	}
 
-	printf("%d番目から%d番目のテストパターンによる論理シミュレーション完了\n",test_number,test_number+sim_test);
+	printf("%d番目から%d番目のテストパターンによる論理シミュレーション完了\n\n",test_number,test_number+sim_test);
 
 	return 1;
 }
@@ -221,7 +223,6 @@ void gate_calc(int tst_number, int net_number,NLIST** sort_net) {
 
 	default:
 		printf("信号線のゲートタイプに誤りがあります\n");
-		return -1;
 		break;
 
 	}//switch文終了
