@@ -60,7 +60,7 @@ int input_f(char* testfile, char* pinfile, char* vfile) {
 	buf_test = (char*)malloc(sizeof(char) * n_pi);
 
 	while (fgets(buf_test, n_pi*2, fp_test) != NULL) {
-		if (strcmp(buf_test, "\n") != 0) {
+		if (strcmp(buf_test, "\n") != 0) {	//改行のみの記述をカウントしないように制御
 			n_test++;
 		}
 	}rewind(fp_test);
@@ -99,14 +99,22 @@ int input_f(char* testfile, char* pinfile, char* vfile) {
 	dic = (DICT*)malloc(sizeof(DICT) * n_test);
 	for (int test_number = 0; test_number < n_test; test_number++) {
 		dic[test_number].tp = test_number;
-		dic[test_number].fault = (NLIST**)malloc(sizeof(NLIST*) * n_net);
-		dic[test_number].saf_flag = (int*)malloc(sizeof(int) * n_net);
-		dic[test_number].n_fault = 0;
+		dic[test_number].n_grp = 0;
+		dic[test_number].insert_number = 0;
+		dic[test_number].unconf_fault = (NLIST***)malloc(sizeof(NLIST**));	//1つの格納配列のみ宣言
+		dic[test_number].po_value = (char**)malloc(sizeof(char*));			//1つのハッシュ表のみ宣言
+		dic[test_number].unconf_saf_flag = (int**)malloc(sizeof(int*));		//1つの検出故障フラグ配列のみ宣言
+		dic[test_number].n_unconf_fault = (int*)malloc(sizeof(int));		//1つの未識別故障数のみ宣言
 	}
 
-	//未識別故障ペア格納ハッシュ配列の領域確保
+	//未識別故障集合格納配列の領域確保,初期化
 	hash.unconf_fault = (NLIST***)malloc(sizeof(NLIST**) * n_net * 2);
 	hash.saf_flag = (int**)malloc(sizeof(int*) * n_net * 2);
+	hash.n_unconf_fault = (int*)malloc(sizeof(int) * n_net * 2);
+	hash.n_grp = 0;
+	hash.insert_number = 0;
+	hash.confirm_number = 0;
+	hash.confirm_flag = (int**)malloc(sizeof(int*) * n_net * 2);
 
 
 	fclose(fp_test);
