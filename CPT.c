@@ -9,29 +9,35 @@
 #include "Fault_dic.h"
 #include "FFR.h"
 
-int insert_fault_index(int test_dic, char* po_temp) {
-
-}
-
 
 
 int SAF_CPT1(int test_number,int tst_number,NLIST* sim_net) {
 
-	int n_ctr_value = 0, cpt_number, test_dic = test_number + tst_number, net_dic = dic[test_dic].n_fault;
+	int n_ctr_value = 0, cpt_number, test_dic = test_number + tst_number, hash_number = dic[test_dic].insert_number, net_dic = dic[test_dic].n_unconf_fault[hash_number];
 
-	//n_ctr_value:制御値の数,  cpt_number:CPTを適用する入力信号線id,  test_dic:故障辞書配列の要素番号(テストパターン番号),  net_dic:検出故障の要素番号
+	//n_ctr_value:制御値の数,
+	//cpt_number:CPTを適用する入力信号線id
+	//test_dic:故障辞書配列の要素番号(テストパターン番号)
+	//hash_number:故障挿入箇所(対象ハッシュ表の要素番号)
+	//net_dic:検出故障の要素番号
+
+	int n_fault;
+	NLIST** fault_temp;
+	int* saf_temp;
 
 	sim_net->detec[tst_number] = 1;			//検出可能な故障としてdetectabilityへフラグ立て
 
-	dic[test_dic].fault[net_dic] = sim_net;	//検出故障信号線保存
+	n_fault = dic[test_dic].n_unconf_fault[hash_number];
 
-	dic[test_dic].saf_flag[net_dic] = 0;	//検出故障値保存
+	dic[test_dic].n_unconf_fault[hash_number]++;
 
-	dic[test_dic].n_fault++;				//検出故障数インクリメント
+	dic[test_dic].unconf_fault[hash_number][n_fault] = sim_net;	//検出故障信号線保存
+
+	dic[test_dic].unconf_saf_flag[hash_number][n_fault] = 0;	//検出故障値保存
 
 	sim_net->sim_fault0_flag = 1;			//0縮退故障検出フラグ立て
 
-	printf("%s\t detect=%d\n", sim_net->name, sim_net->detec[tst_number]);
+	printf("s-a-0\t%s\n", dic[test_dic].unconf_fault[hash_number][n_fault]->name);
 
 	switch (sim_net->type) {
 
@@ -165,21 +171,29 @@ int SAF_CPT1(int test_number,int tst_number,NLIST* sim_net) {
 
 int SAF_CPT0(int test_number, int tst_number, NLIST* sim_net) {
 
-	int n_ctr_value = 0, cpt_number, test_dic = test_number + tst_number, net_dic = dic[test_dic].n_fault;
+	int n_ctr_value = 0, cpt_number, test_dic = test_number + tst_number, hash_number = dic[test_dic].insert_number, net_dic = dic[test_dic].n_unconf_fault[hash_number];
 
-	//n_ctr_value:制御値の数,  cpt_number:CPTを適用する入力信号線id,  test_dic:故障辞書配列の要素番号(テストパターン番号),  net_dic:検出故障の要素番号
+	//n_ctr_value:制御値の数,
+	//cpt_number:CPTを適用する入力信号線id
+	//test_dic:故障辞書配列の要素番号(テストパターン番号)
+	//hash_number:故障挿入箇所(対象ハッシュ表の要素番号)
+	//net_dic:検出故障の要素番号
+
+	int n_fault;
 
 	sim_net->detec[tst_number] = 1;			//検出可能な故障としてdetectabilityへフラグ立て
 
-	dic[test_dic].fault[net_dic] = sim_net;	//検出故障信号線保存
+	n_fault = dic[test_dic].n_unconf_fault[hash_number];
 
-	dic[test_dic].saf_flag[net_dic] = 1;	//検出故障値保存
+	dic[test_dic].n_unconf_fault[hash_number]++;
 
-	dic[test_dic].n_fault++;				//検出故障数インクリメント
+	dic[test_dic].unconf_fault[hash_number][n_fault] = sim_net;	//検出故障信号線保存
+		
+	dic[test_dic].unconf_saf_flag[hash_number][n_fault] = 1;	//検出故障値保存
 
 	sim_net->sim_fault1_flag = 1;			//1縮退故障検出フラグ立て
 
-	printf("%s\t detect=%d\n", sim_net->name, sim_net->detec[tst_number]);
+	printf("s-a-0\t%s\n", dic[test_dic].unconf_fault[hash_number][n_fault]->name);
 
 	switch (sim_net->type) {
 
