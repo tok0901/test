@@ -19,6 +19,7 @@ typedef struct Unconf_Fault_Pair {
 	int** saf_flag;				//検出故障フラグ
 	NLIST*** unconf_fault;		//未識別故障集合
 	int* n_unconf_fault;		//未識別故障数
+	int* n_index;				//最大要素数
 	int n_grp;					//未識別故障集合数
 	int insert_number;			//新規未識別故障集合格納要素番号
 	int confirm_number;			//細分化未識別故障集合格納要素番号
