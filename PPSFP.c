@@ -76,14 +76,13 @@ int SAF_PPSFP(int test_number, int sim_test, FFR* ffr) {
 
 			if (cpt_flag == 2) {
 
-				printf("\n\nPPSFP完了\n\n");
+				printf("\n****************tp%d********************\n\n", test_number + tst_number);
+
+				printf("***PPSFP完了***\n");
 				po_temp = Pulse_Output_Value(tst_number, sort_net);						
 				hash_insert(test_number, tst_number, po_temp);							//ハッシュ表挿入
 
 				//CPT実行
-
-				printf("\ntp%d\n\n", test_number + tst_number);
-
 				if (ffr[ffr_number].fos->value[tst_number] == 1) {						//対象信号線の正常値が1の時
 
 					if (SAF_CPT1(test_number, tst_number, ffr[ffr_number].fos) != 1) {	//SAF_CPT1呼出し
@@ -104,7 +103,7 @@ int SAF_PPSFP(int test_number, int sim_test, FFR* ffr) {
 
 		}
 
-		printf("FFR%dのCPT完了\n\n", ffr[ffr_number].fos->ffr_id);
+		printf("****************FFR%dのCPT完了**************************\n\n", ffr[ffr_number].fos->ffr_id);
 
 	}
 
