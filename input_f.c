@@ -111,10 +111,13 @@ int input_f(char* testfile, char* pinfile, char* vfile) {
 	hash.unconf_fault = (NLIST***)malloc(sizeof(NLIST**) * n_net * 2);
 	hash.saf_flag = (int**)malloc(sizeof(int*) * n_net * 2);
 	hash.n_unconf_fault = (int*)malloc(sizeof(int) * n_net * 2);
+	hash.n_index = (int*)malloc(sizeof(int) * n_net * 2);
 	hash.n_grp = 0;
 	hash.insert_number = 0;
 	hash.confirm_number = 0;
 	hash.confirm_flag = (int**)malloc(sizeof(int*) * n_net * 2);
+	hash.n_confirm_flag = (int*)malloc(sizeof(int) * n_net * 2);
+
 
 
 	fclose(fp_test);
