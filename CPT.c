@@ -193,7 +193,7 @@ int SAF_CPT0(int test_number, int tst_number, NLIST* sim_net) {
 
 	sim_net->sim_fault1_flag = 1;			//1縮退故障検出フラグ立て
 
-	printf("s-a-0\t%s\n", dic[test_dic].unconf_fault[hash_number][n_fault]->name);
+	printf("s-a-1\t%s\n", dic[test_dic].unconf_fault[hash_number][n_fault]->name);
 
 	switch (sim_net->type) {
 
