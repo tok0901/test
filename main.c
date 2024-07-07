@@ -55,7 +55,8 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
-	//故障シミュレーション(PPSFP,CPT)
+
+	//故障シミュレーション(論理シミュレーション,PPSFP,CPT)
 	int sim_test = 64, max_test;
 	for (int test_number = 0; test_number < n_test;test_number+=sim_test) {
 
@@ -80,13 +81,14 @@ int main(int argc, char* argv[]) {
 			return 0;
 		}*/
 
-		printf("***********************************%d番目から%d番目のテストパターンによる故障検出完了********************************\n", test_number, test_number + sim_test);
+		printf("****************%d番目から%d番目のテストパターンによる故障検出完了********************************\n", test_number, test_number + sim_test);
 
 	}
 
+	//故障シミュレーション出力結果
 	for (int test_number = 0; test_number<n_test; test_number++) {
 
-		printf("\n*********************************tp%d*********************************************\n", test_number);
+		printf("\n****************tp%d*********************************************\n", test_number);
 
 		for (int hash_number = 0; hash_number < dic[test_number].n_grp; hash_number++) {
 
@@ -107,16 +109,48 @@ int main(int argc, char* argv[]) {
 
 	}
 
+	//未識別故障ペア取得
+	int x;
+	x = Confirm_Fault_Pair(hash, dic);
+	if (x == 1) {
+		printf("\n\n未識別故障ペア取得完了\n\n");
+	}
+	else if (x == 0) {
+		printf("\n\n全故障の識別完了\n\n");
+	}
 
+	unconf_fault_pair = 0;
 
-	////最終結果出力
-	//for (int test_number = 0; test_number < n_test; test_number++) {
-	//	printf("\ntp%d\t検出故障数:%d\n", test_number,dic[test_number].n_fault);
+	//未識別故障ペア取得出力結果
+	int devide_number = 0;
+	while (devide_number < conf_fault_module) {
 
-	//	for (int net_number = 0; net_number < dic[test_number].n_fault; net_number++) {
-	//		printf("s-a-%d\t%s\n", dic[test_number].saf_flag[net_number], dic[test_number].fault[net_number]->name);
-	//	}
-	//}
+		printf("\n\n****************Unconf_Fault_Pair%d*********************************************\n\n", devide_number);
+		int search_number = 0, fault_number = 0;
+
+		if (hash.n_unconf_fault[devide_number] >=2) {
+			unconf_fault_pair += hash.n_unconf_fault[devide_number] * (hash.n_unconf_fault[devide_number] - 1) / 2;
+		}
+
+		while (fault_number < hash.n_unconf_fault[devide_number]) {
+			if (hash.unconf_fault[devide_number][search_number] != NULL) {
+				if (hash.saf_flag[devide_number][search_number] == 0) {
+					printf("s-a-0\t%s\n", hash.unconf_fault[devide_number][search_number]->name);
+				}
+				else if (hash.saf_flag[devide_number][search_number] == 1) {
+					printf("s-a-1\t%s\n", hash.unconf_fault[devide_number][search_number]->name);
+				}
+
+				fault_number++;
+			}
+
+			search_number++;
+		}
+
+		devide_number++;
+	}
+
+	
 
 	for (int net_number = 0; net_number < n_net; net_number++) {
 		if (sort_net[net_number]->sim_fault0_flag != 1) {
@@ -138,6 +172,14 @@ int main(int argc, char* argv[]) {
 	result = (double)n_sim_fault / all_fault;
 
 	printf("\n故障検出率:%.2f％\n", result*100);
+
+	all_conf_fault_pair = n_net * 2 * (n_net * 2 - 1) / 2;
+
+	printf("\n全故障ペア数:%d\n", all_conf_fault_pair);
+
+	printf("\n未識別故障ペア数:%d\n", unconf_fault_pair);
+
+	printf("\nDC:%.2f％\n", (double)(all_conf_fault_pair - unconf_fault_pair) / all_conf_fault_pair * 100);
 
 	return 0;
 
