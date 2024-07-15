@@ -283,7 +283,7 @@ int Confirm_Fault_Pair(HASH hash, DICT* dic) {
 	}//全故障辞書配列参照終了
 
 	conf_fault_module = hash.n_grp;
-	if (conf_fault_module == n_net * 2) {
+	if (conf_fault_module == n_sim_fault) {
 
 		return 0;
 	}
