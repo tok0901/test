@@ -37,6 +37,7 @@ void hash_insert(int test_number, int tst_number, char* temp_po);
 
 //外部変数
 
-int all_conf_fault_pair;		//全識別故障ペア数
-int unconf_fault_pair;			//未識別故障ペア数
-int conf_fault_module;			//識別故障集合数
+double all_conf_fault_pair;		//全識別故障ペア数
+double unconf_fault_pair;		//未識別故障ペア数
+double conf_fault_module;		//識別故障集合数
+double n_sim_fault;				//全検出故障数
