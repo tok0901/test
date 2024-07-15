@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "Netlist.h"
 #include "Queue.h"
@@ -31,6 +32,8 @@ int Confirm_Fault_Pair(HASH hash, DICT* dic);
 
 int main(int argc, char* argv[]) {
 
+	double result, all_fault;
+
 	//コマンド解析
 	if (command(argc, argv) !=1) {
 		printf("\n\nコマンド解析エラー\n");
@@ -55,6 +58,9 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
+	//出力応答値数算出
+	int max_po_index;
+	max_po_index = pow(2,n_po);
 
 	//故障シミュレーション(論理シミュレーション,PPSFP,CPT)
 	int sim_test = 64, max_test;
@@ -71,15 +77,18 @@ int main(int argc, char* argv[]) {
 			return 0;
 		}
 
+		//故障辞書内-未識別故障集合関連メンバの領域確保
+		for (int test_dic = test_number; test_dic < sim_test; test_dic++) {
+			dic[test_dic].unconf_fault = (NLIST***)malloc(sizeof(NLIST**) * max_po_index);
+			dic[test_dic].unconf_saf_flag = (int**)malloc(sizeof(int*) * max_po_index);
+			dic[test_dic].po_value = (char**)malloc(sizeof(char*) * max_po_index);
+			dic[test_dic].n_unconf_fault = (int*)malloc(sizeof(int) * max_po_index);
+		}
+
 		if (SAF_PPSFP(test_number,sim_test,ffr) != 1) {
 			printf("\n\nPPSFPエラー\n");
 			return 0;
 		}
-
-		/*if (make_dic(test_number, sim_test, sort_net) != 1) {
-			printf("\n\n故障辞書生成エラー\n");
-			return 0;
-		}*/
 
 		printf("****************%d番目から%d番目のテストパターンによる故障検出完了********************************\n", test_number, test_number + sim_test);
 
@@ -108,6 +117,32 @@ int main(int argc, char* argv[]) {
 		}
 
 	}
+
+	//未検出故障出力
+	for (int net_number = 0; net_number < n_net; net_number++) {
+		if (sort_net[net_number]->sim_fault0_flag != 1) {
+			printf("未検出故障:s-a-0\t%s\n", sort_net[net_number]->name);
+			not_fault++;
+		}
+		if (sort_net[net_number]->sim_fault1_flag != 1) {
+			printf("未検出故障:s-a-1\t%s\n", sort_net[net_number]->name);
+			not_fault++;
+		}
+	}
+
+
+	//全対象故障数
+	all_fault = n_net * 2.0;
+
+	//全検出故障数
+	n_sim_fault = all_fault - not_fault;
+
+	//故障検出率
+	result = (double)n_sim_fault / all_fault;
+
+	//全故障ペア数
+	all_conf_fault_pair = n_sim_fault * (n_sim_fault - 1) / 2;
+
 
 	//未識別故障ペア取得
 	int x;
@@ -149,37 +184,14 @@ int main(int argc, char* argv[]) {
 
 		devide_number++;
 	}
-
 	
-
-	for (int net_number = 0; net_number < n_net; net_number++) {
-		if (sort_net[net_number]->sim_fault0_flag != 1) {
-			printf("未検出故障:s-a-0\t%s\n", sort_net[net_number]->name);
-			not_fault++;
-		}
-		if (sort_net[net_number]->sim_fault1_flag != 1) {
-			printf("未検出故障:s-a-1\t%s\n", sort_net[net_number]->name);
-			not_fault++;
-		}
-	}
-
-	double result,all_fault,n_sim_fault;
-
-	all_fault = n_net * 2.0;
-
-	n_sim_fault = all_fault - not_fault;
-
-	result = (double)n_sim_fault / all_fault;
-
 	printf("\n故障検出率:%.2f％\n", result*100);
+	
+	printf("\n全故障ペア数:%.0f\n", all_conf_fault_pair);
 
-	all_conf_fault_pair = n_net * 2 * (n_net * 2 - 1) / 2;
+	printf("\n未識別故障ペア数:%.0f\n", unconf_fault_pair);
 
-	printf("\n全故障ペア数:%d\n", all_conf_fault_pair);
-
-	printf("\n未識別故障ペア数:%d\n", unconf_fault_pair);
-
-	printf("\nDC:%.2f％\n", (double)(all_conf_fault_pair - unconf_fault_pair) / all_conf_fault_pair * 100);
+	printf("\nDC:%.2f％\n",(double)(all_conf_fault_pair - unconf_fault_pair) / all_conf_fault_pair * 100);
 
 	return 0;
 
