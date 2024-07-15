@@ -122,7 +122,7 @@ int n_test;//テストパターン数
 //
 //int d_test;	//最終圧縮テストパターン数
 
-int not_fault; //未検出故障数
+double not_fault; //未検出故障数
 
 char** Str_test;//テストパターン配列
 
