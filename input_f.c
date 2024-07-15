@@ -101,10 +101,10 @@ int input_f(char* testfile, char* pinfile, char* vfile) {
 		dic[test_number].tp = test_number;
 		dic[test_number].n_grp = 0;
 		dic[test_number].insert_number = 0;
-		dic[test_number].unconf_fault = (NLIST***)malloc(sizeof(NLIST**));	//1つの格納配列のみ宣言
-		dic[test_number].po_value = (char**)malloc(sizeof(char*));			//1つのハッシュ表のみ宣言
-		dic[test_number].unconf_saf_flag = (int**)malloc(sizeof(int*));		//1つの検出故障フラグ配列のみ宣言
-		dic[test_number].n_unconf_fault = (int*)malloc(sizeof(int));		//1つの未識別故障数のみ宣言
+		//dic[test_number].unconf_fault = (NLIST***)malloc(sizeof(NLIST**));	//1つの格納配列のみ宣言
+		//dic[test_number].po_value = (char**)malloc(sizeof(char*));			//1つのハッシュ表のみ宣言
+		//dic[test_number].unconf_saf_flag = (int**)malloc(sizeof(int*));		//1つの検出故障フラグ配列のみ宣言
+		//dic[test_number].n_unconf_fault = (int*)malloc(sizeof(int));		//1つの未識別故障数のみ宣言
 	}
 
 	//未識別故障集合格納配列の領域確保,初期化
