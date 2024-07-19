@@ -88,11 +88,15 @@ int input_f(char* testfile, char* pinfile, char* vfile) {
 	}
 
 	//信号線の論理値配列(64bit)の領域確保
-	//信号線のDetectability配列(64bit)の領域確保
+	//信号線のDetectability配列(64bit)の領域確保→long long intとして修正,ビット演算として処理
 	for (i = 0; i < n_net; i++) {
-		nl[i].value = (int*)malloc(sizeof(int) * sim_test);
-		nl[i].detec = (int*)malloc(sizeof(int) * sim_test);
-		nl[i].value_fault_flag = (int*)malloc(sizeof(int) * sim_test);
+		nl[i].value = (short*)malloc(sizeof(short) * sim_test);
+		nl[i].detec = (short*)malloc(sizeof(short) * sim_test);
+		nl[i].value_fault_flag = (short*)malloc(sizeof(short) * sim_test);
+		nl[i].score[0] = 0.0;
+		nl[i].score[1] = 0.0;
+		nl[i].score_flag = 0;
+		nl[i].total_score = 0.0;
 	}
 
 	//故障辞書配列の領域確保,初期化
@@ -109,14 +113,14 @@ int input_f(char* testfile, char* pinfile, char* vfile) {
 
 	//未識別故障集合格納配列の領域確保,初期化
 	hash.unconf_fault = (NLIST***)malloc(sizeof(NLIST**) * n_net * 2);
-	hash.saf_flag = (int**)malloc(sizeof(int*) * n_net * 2);
+	hash.saf_flag = (short**)malloc(sizeof(short*) * n_net * 2);
 	hash.n_unconf_fault = (int*)malloc(sizeof(int) * n_net * 2);
 	hash.n_index = (int*)malloc(sizeof(int) * n_net * 2);
 	hash.n_grp = 0;
 	hash.insert_number = 0;
 	hash.confirm_number = 0;
-	hash.confirm_flag = (int**)malloc(sizeof(int*) * n_net * 2);
-	hash.n_confirm_flag = (int*)malloc(sizeof(int) * n_net * 2);
+	hash.confirm_flag = (short**)malloc(sizeof(short*) * n_net * 2);
+	hash.n_confirm_flag = (short*)malloc(sizeof(short) * n_net * 2);
 
 
 
