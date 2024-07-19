@@ -73,9 +73,10 @@ void hash_insert(int test_number, int tst_number, char* po_temp) {
 		//dic[test_dic].unconf_fault = (NLIST***)realloc(dic[test_dic].unconf_fault, sizeof(NLIST**) * n_hash);	//未識別故障集合配列拡張
 		dic[test_dic].unconf_fault[n_hash - 1] = (NLIST**)malloc(sizeof(NLIST*) * n_net);						//n_net→ffr_net
 		//dic[test_dic].unconf_saf_flag = (int**)realloc(dic[test_dic].unconf_saf_flag, sizeof(int*) * n_hash);	//検出故障フラグ配列拡張
-		dic[test_dic].unconf_saf_flag[n_hash - 1] = (int*)malloc(sizeof(int) * n_net);
+		dic[test_dic].unconf_saf_flag[n_hash - 1] = (short*)malloc(sizeof(short) * n_net);
 		//dic[test_dic].po_value = (char**)realloc(dic[test_dic].po_value, sizeof(char*) * n_hash);				//ハッシュ表配列拡張
-		dic[test_dic].po_value[n_hash - 1] = po_temp;															//新規ハッシュ表(出力応答値)挿入
+		dic[test_dic].po_value[n_hash - 1] = (char*)malloc(sizeof(char) * (n_po + 1));
+		strcpy(dic[test_dic].po_value[n_hash - 1],po_temp);															//新規ハッシュ表(出力応答値)挿入
 		//dic[test_dic].n_unconf_fault = (int*)realloc(dic[test_dic].n_unconf_fault, sizeof(int) * n_hash);		//未検出故障数配列拡張
 		dic[test_dic].n_unconf_fault[n_hash - 1] = 0;															//未検出故障数初期化
 		dic[test_dic].insert_number = n_hash - 1;																//対象故障辞書のハッシュ表挿入箇所を更新
