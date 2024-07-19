@@ -27,6 +27,9 @@ int SAF_PPSFP(int test_number, int sim_test, FFR* ffr);
 //未識別故障ペア取得
 int Confirm_Fault_Pair(HASH hash, DICT* dic);
 
+//観測ポイント挿入
+int TPI_Score_Calc(HASH hash, NLIST** sort_net);
+
 //////////////////////////////////////////////////////////////////////////////////
 
 
@@ -162,7 +165,7 @@ int main(int argc, char* argv[]) {
 	while (devide_number < conf_fault_module) {
 
 		if (hash.n_unconf_fault[devide_number] >= 2) {
-			unconf_fault_pair= unconf_fault_pair+hash.n_unconf_fault[devide_number] * (hash.n_unconf_fault[devide_number] - 1) / 2;
+			unconf_fault_pair = unconf_fault_pair + hash.n_unconf_fault[devide_number] * (hash.n_unconf_fault[devide_number] - 1) / 2;
 			n_unconf_fault_grp++;
 
 			printf("\n\n****************Unconf_Fault_Pair%d*********************************************\n\n", devide_number);
@@ -187,6 +190,15 @@ int main(int argc, char* argv[]) {
 
 		devide_number++;
 	}
+
+	//観測ポイント挿入
+	if (TPI_Score_Calc(hash,sort_net)!= 1) {
+		printf("\n\n観測ポイント挿入エラー\n");
+		return 0;
+	}
+
+
+
 
 	printf("\n故障検出率:%.2f％\n", result * 100);
 
