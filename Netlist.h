@@ -42,7 +42,7 @@ typedef struct _Netlist_Format_ {
 
 	//論理シミュレーション
 	int level;							//レベル付け
-	int* value;							//格納論理値
+	short* value;							//格納論理値
 
 	//同時故障シミュレーション
 	//struct _Netlist_Format_** fault;	//検出故障
@@ -60,12 +60,17 @@ typedef struct _Netlist_Format_ {
 	int ffr_id;
 
 	//CPT
-	int* detec;
+	short* detec;
 
 	//PPSFP
-	int sim_fault0_flag;				//0縮退故障検出フラグ
-	int sim_fault1_flag;				//1縮退故障検出フラグ
-	int* value_fault_flag;				//故障伝搬フラグ
+	short sim_fault0_flag;				//0縮退故障検出フラグ
+	short sim_fault1_flag;				//1縮退故障検出フラグ
+	short* value_fault_flag;				//故障伝搬フラグ
+
+	//TPI
+	short score_flag;					//TPIスコアフラグ(有効:total_scoreへ加算しない)
+	double score[2];					//TPIスコア(score[0]にf1,score[1]に)
+	double total_score;					//合計TPIスコア
 
 
 } NLIST;
