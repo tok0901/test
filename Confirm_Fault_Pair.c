@@ -68,8 +68,8 @@ int Confirm_Fault_Pair(HASH hash, DICT* dic) {
 				hash.unconf_fault[insert_number] = (NLIST**)malloc(sizeof(NLIST*) * n_unconf_fault);
 				hash.n_unconf_fault[insert_number] = 0;
 				hash.n_index[insert_number] = n_unconf_fault;
-				hash.saf_flag[insert_number] = (int*)malloc(sizeof(int) * n_unconf_fault);
-				hash.confirm_flag[insert_number] = (int*)malloc(sizeof(int) * n_unconf_fault);
+				hash.saf_flag[insert_number] = (short*)malloc(sizeof(short) * n_unconf_fault);
+				hash.confirm_flag[insert_number] = (short*)malloc(sizeof(short) * n_unconf_fault);
 				hash.n_confirm_flag[insert_number] = 0;
 
 				//新規未識別故障集合挿入
@@ -98,8 +98,8 @@ int Confirm_Fault_Pair(HASH hash, DICT* dic) {
 				hash.unconf_fault[insert_number] = (NLIST**)malloc(sizeof(NLIST*) * (n_unconf_fault-count));
 				hash.n_unconf_fault[insert_number] = 0;
 				hash.n_index[insert_number] = n_unconf_fault - count;
-				hash.saf_flag[insert_number] = (int*)malloc(sizeof(int) * (n_unconf_fault-count));
-				hash.confirm_flag[insert_number] = (int*)malloc(sizeof(int) * (n_unconf_fault-count));
+				hash.saf_flag[insert_number] = (short*)malloc(sizeof(short) * (n_unconf_fault-count));
+				hash.confirm_flag[insert_number] = (short*)malloc(sizeof(short) * (n_unconf_fault-count));
 				hash.n_confirm_flag[insert_number] = 0;
 
 				//操作変数初期化
@@ -150,8 +150,8 @@ int Confirm_Fault_Pair(HASH hash, DICT* dic) {
 					//新規未識別故障ペア配列領域確保
 					hash.unconf_fault[confirm_number] = (NLIST**)malloc(sizeof(NLIST*) * count);
 					hash.n_unconf_fault[confirm_number] = 0;
-					hash.saf_flag[confirm_number] = (int*)malloc(sizeof(int) * count);
-					hash.confirm_flag[confirm_number] = (int*)malloc(sizeof(int) * count);
+					hash.saf_flag[confirm_number] = (short*)malloc(sizeof(short) * count);
+					hash.confirm_flag[confirm_number] = (short*)malloc(sizeof(short) * count);
 					hash.n_confirm_flag[confirm_number] = 0;
 					hash.n_index[confirm_number] = count;
 
@@ -216,8 +216,8 @@ int Confirm_Fault_Pair(HASH hash, DICT* dic) {
 					//新規未識別故障ペア配列領域確保
 					hash.unconf_fault[confirm_number] = (NLIST**)malloc(sizeof(NLIST*) * count);
 					hash.n_unconf_fault[confirm_number] = 0;
-					hash.saf_flag[confirm_number] = (int*)malloc(sizeof(int) * count);
-					hash.confirm_flag[confirm_number] = (int*)malloc(sizeof(int) * count);
+					hash.saf_flag[confirm_number] = (short*)malloc(sizeof(short) * count);
+					hash.confirm_flag[confirm_number] = (short*)malloc(sizeof(short) * count);
 					hash.n_confirm_flag[confirm_number] = 0;
 					hash.n_index[confirm_number] = count;
 
