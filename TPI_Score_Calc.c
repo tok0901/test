@@ -19,7 +19,7 @@ double alpha = 0.9; double main_fault_score = 10.0;
 
 
 //TPIスコア計算関数(未識別故障集合格納配列を対象)
-int TPI_Score_Calc(HASH hash, NLIST** sort_net) {
+int TPI_Score_Calc(NLIST** sort_net) {
 
 	int devide_number = 0; int count = 0;
 	NLIST* cur_net; NLIST* sim_net;
@@ -30,6 +30,7 @@ int TPI_Score_Calc(HASH hash, NLIST** sort_net) {
 		if (hash.n_unconf_fault[devide_number] >= 2) {
 
 			printf("\n\n****************Unconf_Fault_Pair%d*********************************************\n\n", devide_number);
+			count = 0;
 
 			//未識別故障集合内-全故障参照
 			for (int cur_number = 0; cur_number < hash.n_index[devide_number]; cur_number++) {
@@ -112,10 +113,6 @@ int TPI_Score_Gate(NLIST* sim_fault,int flag) {
 
 			sim_fault->score[main_number] = 0.0;
 			sim_fault->score_flag = stop_flag;
-	}
-	else if (sim_fault->type == IN) {		//外部入力線かどうか
-		sim_fault->score[main_number] = 0.0;
-		sim_fault->score_flag = flag;
 	}
 
 	else if (sim_fault->score[sub_number] == 0.0) {	//まだスコア計算をしていない
@@ -265,12 +262,11 @@ int TPI_Score_Reset(int flag) {
 int TPI_Points_Count(void) {
 
 	double max_score = 0.0;
-	int n_point = 0;
 
 	//最大スコア算出
 	for (int net_number = 0; net_number < n_net; net_number++) {
 
-		if (sort_net[net_number]->total_score > max_score) {
+		if ((sort_net[net_number]->total_score > max_score)&&(sort_net[net_number]->tpi_flag==0)) {
 			max_score = sort_net[net_number]->total_score;
 		}
 	}
@@ -285,11 +281,13 @@ int TPI_Points_Count(void) {
 
 		if (sort_net[net_number]->total_score == max_score) {
 			printf("%s\n", sort_net[net_number]->name);
-			n_point++;
+			sort_net[net_number]->tpi_flag = 1;
+			tpi_net[n_tpi] = sort_net[net_number];
+			n_tpi++;
 		}
 
 	}
-	printf("\n観測ポイント数:%d\n", n_point);
+	printf("\n挿入観測ポイント数:%d\n", n_tpi);
 	printf("\n最大スコア:%.10f\n", max_score);
 
 	return 1;
