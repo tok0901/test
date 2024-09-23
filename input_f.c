@@ -97,6 +97,11 @@ int input_f(char* testfile, char* pinfile, char* vfile) {
 		nl[i].score[1] = 0.0;
 		nl[i].score_flag = 0;
 		nl[i].total_score = 0.0;
+		nl[i].tpi_flag = 0;
+	}
+
+	for (i = 0; i < n_po; i++) {
+		po[i]->tpi_flag = -1;
 	}
 
 	//故障辞書配列の領域確保,初期化
@@ -122,7 +127,9 @@ int input_f(char* testfile, char* pinfile, char* vfile) {
 	hash.confirm_flag = (short**)malloc(sizeof(short*) * n_net * 2);
 	hash.n_confirm_flag = (short*)malloc(sizeof(short) * n_net * 2);
 
-
+	//観測ポイント配列の領域確保,観測ポイント数初期化
+	tpi_net = (NLIST**)malloc(sizeof(NLIST*) * (n_net - n_po));
+	n_tpi = 0;
 
 	fclose(fp_test);
 
