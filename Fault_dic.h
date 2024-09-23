@@ -34,6 +34,7 @@ HASH hash;
 //make_hash_tbl内関数プロトタイプ宣言
 char* Pulse_Output_Value(int tst_number, NLIST** sort_net);
 void hash_insert(int test_number, int tst_number, char* temp_po);
+void hash_reset(int test_dic);
 
 //外部変数
 
