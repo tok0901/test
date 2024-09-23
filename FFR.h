@@ -11,6 +11,6 @@ typedef struct Fanout_FreeRegion {
 	int						po_flag;			//外部出力格納フラグ(1:FFR内に外部出力線を持つ,0:持たない)
 	NLIST* fos;									//FOUT_STEMへのポインタ
 
-}FFR;
+} FFR;
 
 FFR* ffr;
