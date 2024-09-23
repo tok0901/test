@@ -11,11 +11,11 @@
 
 int devide_ffr(NLIST** sort_net) {
 	
-	Que.que = (NLIST**)malloc(sizeof(NLIST*) * n_net);
+	/*Que.que = (NLIST**)malloc(sizeof(NLIST*) * n_net);
 	Que.max = n_net;
 	Que.num = 0;
 	Que.front = 0;
-	Que.rear = 0;
+	Que.rear = 0;*/
 
 	NLIST* signalo;
 	
