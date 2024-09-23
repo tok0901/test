@@ -16,18 +16,17 @@ int SAF_CPT0(int test_number, int tst_number, NLIST* sim_net);
 int gate_calc_fault(int tst_number, NLIST* sim_net);
 
 
-
 int SAF_PPSFP(int test_number, int sim_test, FFR* ffr) {
 
 	int ffr_number, tst_number, cpt_flag;													//cpt_flag(0:実行無し,1:PPSFP実行,2:CPT実行)
 	char* po_temp;
 	NLIST* signalo;
 
-	Que.que = (NLIST**)malloc(sizeof(NLIST*) * n_net * 1000);
+	/*Que.que = (NLIST**)malloc(sizeof(NLIST*) * n_net * 1000);
 	Que.max = n_net * 1000;
 	Que.num = 0;
 	Que.front = 0;
-	Que.rear = 0;
+	Que.rear = 0;*/
 
 	for (ffr_number = 0; ffr_number < n_ffr; ffr_number++) {								//外部出力側のFFRからCPT実行
 
@@ -49,6 +48,10 @@ int SAF_PPSFP(int test_number, int sim_test, FFR* ffr) {
 						cpt_flag = 1;
 						queue_enqueue(ffr[ffr_number].fos->out[out_number]);
 					}
+				}
+
+				if (ffr[ffr_number].fos->tpi_flag == 1) {
+					ffr[ffr_number].fos->tpi_flag = 2;	//観測ポイントであるFOSのtpiフラグを2(故障伝搬フラグ有効)にする
 				}
 			}
 
@@ -115,12 +118,12 @@ int SAF_PPSFP(int test_number, int sim_test, FFR* ffr) {
 
 int gate_calc_fault(int tst_number, NLIST* sim_net) {
 
-	int flag = 0, num, result; int* in_value;
+	int flag = 0, num, result; short* in_value;
 	int in_number, out_number;
 
 		if (sim_net->n_in >= 2) {
 			num = sim_net->n_in;
-			in_value = (int*)malloc(sizeof(int) * num);
+			in_value = (short*)malloc(sizeof(short) * num);
 			for (in_number = 0; in_number < num; in_number++) {
 				if (sim_net->in[in_number]->value_fault_flag[tst_number] == 1) {
 
@@ -304,6 +307,14 @@ int gate_calc_fault(int tst_number, NLIST* sim_net) {
 
 
 	}//switch文終了
+
+	if (sim_net->tpi_flag == 1) {
+		sim_net->tpi_flag = 2;	//観測ポイントである信号線のtpiフラグを2(故障伝搬フラグを有効)にする
+	}
+
+	if (sim_net->n_in >= 2) {
+		free(in_value);
+	}
 
 	if (flag == 0) {		//故障が外部出力まで伝搬しない
 		return flag;
