@@ -12,9 +12,10 @@
 //出力応答値算出関数
 char* Pulse_Output_Value(int tst_number, NLIST** sort_net) {
 
-	int net_number;
+	int net_number, tpi_number;
 	char* po_temp;
-	po_temp = (char*)malloc(sizeof(char) * (n_po+1));
+	n_tpi_po = n_po + n_tpi;
+	po_temp = (char*)malloc(sizeof(char) * (n_tpi_po+1));
 
 	for (net_number = 0; net_number < n_po; net_number++) {
 		
@@ -41,6 +42,35 @@ char* Pulse_Output_Value(int tst_number, NLIST** sort_net) {
 		}
 
 
+	}
+
+	tpi_number = 0;
+	while (net_number < n_tpi_po) {
+
+		if (tpi_net[tpi_number]->tpi_flag == 2) {
+
+			if (tpi_net[tpi_number]->value[tst_number] == 0) {
+				po_temp[net_number] = '1';
+			}
+			else if (tpi_net[tpi_number]->value[tst_number] == 1) {
+				po_temp[net_number] = '0';
+			}
+
+			tpi_net[tpi_number]->tpi_flag = 1;	//tpiフラグ初期化
+		}
+
+		else if (tpi_net[tpi_number]->tpi_flag == 1) {
+
+			if (tpi_net[tpi_number]->value[tst_number] == 0) {
+				po_temp[net_number] = '0';
+			}
+			else if (tpi_net[tpi_number]->value[tst_number] == 1) {
+				po_temp[net_number] = '1';
+			}
+		}
+
+		net_number++;
+		tpi_number++;
 	}
 
 	po_temp[net_number] = '\0';
@@ -75,12 +105,34 @@ void hash_insert(int test_number, int tst_number, char* po_temp) {
 		//dic[test_dic].unconf_saf_flag = (int**)realloc(dic[test_dic].unconf_saf_flag, sizeof(int*) * n_hash);	//検出故障フラグ配列拡張
 		dic[test_dic].unconf_saf_flag[n_hash - 1] = (short*)malloc(sizeof(short) * n_net);
 		//dic[test_dic].po_value = (char**)realloc(dic[test_dic].po_value, sizeof(char*) * n_hash);				//ハッシュ表配列拡張
-		dic[test_dic].po_value[n_hash - 1] = (char*)malloc(sizeof(char) * (n_po + 1));
+		dic[test_dic].po_value[n_hash - 1] = (char*)malloc(sizeof(char) * (n_tpi_po + 1));
 		strcpy(dic[test_dic].po_value[n_hash - 1],po_temp);															//新規ハッシュ表(出力応答値)挿入
 		//dic[test_dic].n_unconf_fault = (int*)realloc(dic[test_dic].n_unconf_fault, sizeof(int) * n_hash);		//未検出故障数配列拡張
 		dic[test_dic].n_unconf_fault[n_hash - 1] = 0;															//未検出故障数初期化
 		dic[test_dic].insert_number = n_hash - 1;																//対象故障辞書のハッシュ表挿入箇所を更新
 	}
 
+
+}
+
+
+void hash_reset(int test_dic) {
+	
+	for (int hash_number = 0; hash_number < dic[test_dic].n_grp; hash_number++) {
+		free(dic[test_dic].unconf_fault[hash_number]);
+		free(dic[test_dic].unconf_saf_flag[hash_number]);
+		free(dic[test_dic].po_value[hash_number]);
+		free(dic[test_dic].hash_number[hash_number]);
+		dic[test_dic].n_unconf_fault[hash_number] = 0;
+
+	}
+
+	free(dic[test_dic].unconf_fault);
+	free(dic[test_dic].unconf_saf_flag);
+	free(dic[test_dic].po_value);
+	dic[test_dic].insert_number = 0;
+	dic[test_dic].n_grp = 0;
+	free(dic[test_dic].n_unconf_fault);
+	free(dic[test_dic].hash_number);
 
 }
