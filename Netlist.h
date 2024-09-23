@@ -71,6 +71,7 @@ typedef struct _Netlist_Format_ {
 	short score_flag;					//TPIスコアフラグ(有効:total_scoreへ加算しない)
 	double score[2];					//TPIスコア(score[0]にf1,score[1]に)
 	double total_score;					//合計TPIスコア
+	short tpi_flag;						//TPIフラグ(有効:Test Pointとして選択)
 
 
 } NLIST;
@@ -136,6 +137,12 @@ char** Str_pin;//外部入力ピン配列
 char** test_tbl;//論理値格納配列
 
 int n_ffr;//ffr数
+
+int n_tpi_po;//TPI後出力応答ビット数
+
+NLIST** tpi_net;//観測ポイント配列
+
+int n_tpi;//観測ポイント数
 
 #define _CRTSECURE_NO_WARNINGS
 #pragma warning(disable:4996)
