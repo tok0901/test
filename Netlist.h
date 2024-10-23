@@ -26,6 +26,11 @@
 #define  GND	25 //グランド
 #define  ACC	26 //電源
 
+//追記
+typedef unsigned long long int ULLI;
+#define BIT_64	64
+//////
+
 //ネットリスト構造体定義
 typedef struct _Netlist_Format_ {
 	char* name;							//名前
@@ -37,12 +42,12 @@ typedef struct _Netlist_Format_ {
 	struct _Netlist_Format_** out;		//出力ポインタ配列
 	char* name_port;					//端子名 pin名
 	char* name_ins;						//インスタンス名
-	
-	//追記
+
+	//追記///
 
 	//論理シミュレーション
-	int level;							//レベル付け
-	short* value;							//格納論理値
+	int level;							//ゲートレベル
+	ULLI val;							//格納論理値(64bit)
 
 	//同時故障シミュレーション
 	//struct _Netlist_Format_** fault;	//検出故障
@@ -60,12 +65,12 @@ typedef struct _Netlist_Format_ {
 	int ffr_id;
 
 	//CPT
-	short* detec;
+	ULLI det;
 
 	//PPSFP
+	ULLI fault_flag;					//故障伝搬フラグ
 	short sim_fault0_flag;				//0縮退故障検出フラグ
 	short sim_fault1_flag;				//1縮退故障検出フラグ
-	short* value_fault_flag;				//故障伝搬フラグ
 
 	//TPI
 	short score_flag;					//TPIスコアフラグ(有効:total_scoreへ加算しない)
@@ -118,7 +123,7 @@ NLIST** assign;
 int n_assign;
 
 
-//追記
+//追記//
 // 
 NLIST** sort_net;//ソート配列
 
@@ -140,17 +145,34 @@ int n_ffr;//ffr数
 
 int n_tpi_po;//TPI後出力応答ビット数
 
-NLIST** tpi_net;//観測ポイント配列
+int n_64bit;//64bit列数(出力応答値bit列数:0~64=1 , 65~128=2)
+
+NLIST** tpi_po_net;//観測ポイント配列
 
 int n_tpi;//観測ポイント数
+
+NLIST** tpi_net;
 
 #define _CRTSECURE_NO_WARNINGS
 #pragma warning(disable:4996)
 
 
-//追記終了
+//追記終了//
 
 //------------------------------------------------------------------------
 // プロトタイプ宣言
 //------------------------------------------------------------------------
 int read_nl(char*);
+
+//追記//
+void printBinary(ULLI n,int sim_test);	//2進数表示関数
+int bit_print_N(ULLI n, int N);			//ビット列数値算出関数(Nビット目の値を返す:0 or 1)
+ULLI bit_setting_1(ULLI n, int N);	//ビット列数値加算関数(Nビット目の値を1にしてn'を返す)
+ULLI bit_setting_0(ULLI n, int N);	//ビット列数値加算関数(Nビット目の値を0にしてn'を返す)
+int bit_search_N(ULLI n, int N);		//ビット列数値探索関数(Nビット目の値を返す:0or1)
+void bit_count_64(void);				//出力応答値ビット列数更新関数
+void print_po_val(ULLI* n);				//出力応答値標準出力関数
+int strcmp_po_val(ULLI* x, ULLI* y);	//出力応答値比較関数(0:一致,1:不一致)
+int count_number_64(int n);			//64bit列数算出関数
+
+//追記終了//
