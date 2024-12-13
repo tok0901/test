@@ -1,0 +1,35 @@
+-i c17all_tp.txt -pi c17a_pin.txt -v c17a.v
+
+-i s27_C_tp.txt -pi pin_s27_C.txt -v cs27.v
+
+-i c880_tp.txt -pi c880_pin.txt -v c880.v
+
+-i c1355_tp.txt -pi c1355_pin.txt -v c1355.v
+
+-i c1908_tp.txt -pi c1908_pin.txt -v c1908.v
+
+-i c2670_tp.txt -pi c2670_pin.txt -v c2670.v
+
+-i c3540_tp.txt -pi c3540_pin.txt -v c3540.v
+
+-i c5315_tp.txt -pi c5315_pin.txt -v c5315.v
+
+-i c6288_tp.txt -pi c6288_pin.txt -v c6288.v
+
+-i c7552_tp.txt -pi c7552_pin.txt -v c7552.v
+
+-i s5378_C_tp.txt -pi cs5378_pin.txt -v cs5378.v
+
+-i s9234_C_tp.txt -pi cs9234_pin.txt -v cs9234.v
+
+-i s13207_C_tp.txt -pi cs13207_pin.txt -v cs13207.v
+
+-i s15850_C_tp.txt -pi cs15850_pin.txt -v cs15850.v
+
+-i s35932_C_tp.txt -pi cs35932_pin.txt -v cs35932.v
+
+-i s38417_C_tp.txt -pi cs38417_pin.txt -v cs38417.v
+
+-i s38584_C_tp.txt -pi cs38584_pin.txt -v cs38584.v
+
+
