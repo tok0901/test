@@ -2,12 +2,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "Netlist.h"
 #include "Queue.h"
 #include "Command.h"
 #include "Fault_dic.h"
 #include "FFR.h"
+#include "HASH.h"
 
 void queue_enqueue(NLIST* signali) {
 
@@ -24,7 +26,8 @@ void queue_enqueue(NLIST* signali) {
 		}
 	}
 	else {
-		exit(0);
+		printf("\nキューオーバーフロー\n");
+		//exit(0);
 	}
 
 }
@@ -52,7 +55,7 @@ NLIST* queue_dequeue(void) {
 
 
 
-int queue_empty(void)
+int queue_empty(void)	//空:0
 {
 	if (Que.num == 0) {
 		return 0;
