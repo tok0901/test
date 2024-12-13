@@ -2,344 +2,246 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "Netlist.h"
 #include "Queue.h"
 #include "Command.h"
 #include "Fault_dic.h"
 #include "FFR.h"
-
-//プロトタイプ宣言
-//クリティカル経路導出関数
-int SAF_CPT1(int test_number, int tst_number, NLIST* sim_net);
-int SAF_CPT0(int test_number, int tst_number, NLIST* sim_net);
-int gate_calc_fault(int tst_number, NLIST* sim_net);
+#include "HASH.h"
 
 
-int SAF_PPSFP(int test_number, int sim_test, FFR* ffr) {
+int SAF_PPSFP(int test_number, int sim_test, int ffr_number) {
 
-	int ffr_number, tst_number, cpt_flag;													//cpt_flag(0:実行無し,1:PPSFP実行,2:CPT実行)
-	char* po_temp;
-	NLIST* signalo;
 
-	/*Que.que = (NLIST**)malloc(sizeof(NLIST*) * n_net * 1000);
-	Que.max = n_net * 1000;
-	Que.num = 0;
-	Que.front = 0;
-	Que.rear = 0;*/
-
-	for (ffr_number = 0; ffr_number < n_ffr; ffr_number++) {								//外部出力側のFFRからCPT実行
-
-		for (tst_number = 0; tst_number < sim_test; tst_number++) {							//パターン並列(64bit)
-
-			int test_dic = test_number + tst_number;
-
-			cpt_flag = 0;																	//cpt_flag初期化
-
-			for (int net_number = 0; net_number < n_po; net_number++) {
-				po[net_number]->value_fault_flag[tst_number] = 0;						//外部出力線の故障検出フラグ初期化
-			}
-
-			if (ffr[ffr_number].fos->n_out >= 2) {											//対象信号線がFoutStemである時
-
-				//FoutBranchのdetectability判定
-				for (int out_number = 0; out_number < ffr[ffr_number].fos->n_out; out_number++) {
-					if (ffr[ffr_number].fos->out[out_number]->detec[tst_number] == 1) {		//FoutBranchが故障伝搬経路であるかどうか(trueならエンキューしてPPSFP実行)
-						cpt_flag = 1;
-						queue_enqueue(ffr[ffr_number].fos->out[out_number]);
-					}
-				}
-
-				if (ffr[ffr_number].fos->tpi_flag == 1) {
-					ffr[ffr_number].fos->tpi_flag = 2;	//観測ポイントであるFOSのtpiフラグを2(故障伝搬フラグ有効)にする
-				}
-			}
-
-			else {																			//対象FoutStemが外部出力線である時
-
-				ffr[ffr_number].fos->value_fault_flag[tst_number] = 1;						//対象FoutStem(外部出力線)の故障検出フラグを有効にする
-
-				cpt_flag = 2;
-			}
-
-			if (cpt_flag == 1) {
-
-				//PPSFP実行
-				while (queue_empty() == 1) {
-
-					signalo = queue_dequeue();
-
-					if (gate_calc_fault(tst_number, signalo) == 1) {
-						cpt_flag = 2;
-					}
-
-				}
-				
-			}
-
-			if (cpt_flag == 2) {
-
-				printf("\n****************tp%d********************\n\n", test_number + tst_number);
-
-				printf("***PPSFP完了***\n");
-				po_temp = Pulse_Output_Value(tst_number, sort_net);						
-				hash_insert(test_number, tst_number, po_temp);							//ハッシュ表挿入
-
-				//CPT実行
-				if (ffr[ffr_number].fos->value[tst_number] == 1) {						//対象信号線の正常値が1の時
-
-					if (SAF_CPT1(test_number, tst_number, ffr[ffr_number].fos) != 1) {	//SAF_CPT1呼出し
-						return 0;
-					}
-
-				}
-
-				else if (ffr[ffr_number].fos->value[tst_number] == 0) {					//対象信号線の正常値が0の時
-
-					if (SAF_CPT0(test_number, tst_number, ffr[ffr_number].fos) != 1) {	//SAF_CPT0呼出し
-						return 0;
-					}
-
-				}
-
-			}
-
-		}
-
-		printf("****************FFR%dのCPT完了**************************\n\n", ffr[ffr_number].fos->ffr_id);
-
+	//全信号線-故障値初期化(正常値を設定)
+	for (int net_number = 0; net_number < n_net; net_number++) {
+		sort_net[net_number]->fval = sort_net[net_number]->val;
 	}
+
+
+	ffr[ffr_number].fos->fval = ~ffr[ffr_number].fos->val;			//対象ffr-fosの故障値を設定
+
+
+	//論理シミュレーション(故障箇所-外部出力まで)
+	for (int net_number = ffr[ffr_number].fos->sort_n + 1; net_number < n_net; net_number++) {
+
+		fault_value_calc(net_number);
+	}
+
+	/*/確認用
+	NLIST* sim_net = ffr[ffr_number].fos;
+	for (int net_number = 0; net_number < n_pi; net_number++) {
+		if (sort_net[net_number] == sim_net) {
+			sort_net[net_number]->fval = ~sort_net[net_number]->val;
+		}
+		else {
+			sort_net[net_number]->fval = sort_net[net_number]->val;
+		}
+	}
+	for (int net_number = n_pi; net_number < n_net; net_number++) {
+		if (sort_net[net_number] == sim_net) {
+			sort_net[net_number]->fval = ~sort_net[net_number]->val;
+		}
+		else {
+			fault_value_calc(net_number);
+		}
+	}
+	///////////////////////*/
+
+
+	//POの故障値保存(出力応答値保存)
+	for (int net_number = 0; net_number < n_tpi_po; net_number++) {
+		ffr[ffr_number].po_fault_flag[net_number] = tpi_po_net[net_number]->fval;
+	}
+
 
 	return 1;
-}
 
 
-//故障値算出関数
+	///*/修正前
 
-int gate_calc_fault(int tst_number, NLIST* sim_net) {
+	////対象FFR-FOS
+	//if (signali->n_out >= 2) {
 
-	int flag = 0, num, result; short* in_value;
-	int in_number, out_number;
+	//	//FOB->fault_flag算出,エンキュー
+	//	for (int out_number = 0; out_number < signali->n_out; out_number++) {
 
-		if (sim_net->n_in >= 2) {
-			num = sim_net->n_in;
-			in_value = (short*)malloc(sizeof(short) * num);
-			for (in_number = 0; in_number < num; in_number++) {
-				if (sim_net->in[in_number]->value_fault_flag[tst_number] == 1) {
+	//		signali->out[out_number]->fault_flag = signali->fault_flag;
 
-					if (sim_net->in[in_number]->value[tst_number] == 1) {
-						in_value[in_number] = 0;
-					}
-					else {
-						in_value[in_number] = 1;
-					}
+	//		queue_enqueue(signali->out[out_number]);
 
-				}
-				else if (sim_net->in[in_number]->value_fault_flag[tst_number] == 0) {
-					in_value[in_number] = sim_net->in[in_number]->value[tst_number];
-				}
+	//	}
+	//}
 
-				sim_net->in[in_number]->value_fault_flag[tst_number] = 0;			//検出故障フラグ初期化
-			}
+	////対象FFR-tpi_FOS
+	//else if ((signali->n_out == 1)&&(signali->tpi_flag==1)) {
 
-		}
+	//	//tpi_FOS->out[0]->fault_flag算出,エンキュー
+	//	signalo = signali->out[0];
 
-	switch (sim_net->type) {
+	//	int in_number;
+	//	for (in_number = 0; in_number < signalo->n_in; in_number++) {
 
-	case IN:
-	case BUF:
-	case FOUT:
-		sim_net->value_fault_flag[tst_number] = 1;
+	//		if (signali == signalo->in[in_number]) {
+	//			break;
+	//		}
 
-		if (sim_net->n_in >= 1) {
-			sim_net->in[0]->value_fault_flag[tst_number] = 0;
-		}
-		
-		if (sim_net->n_out == 0) {	//外部出力線である時
-			flag = 1;
-		}
-		else {		//出力線が存在する時
-			flag = 2;
-		}
+	//	}
 
-		break;
+	//	temp = fault_value_calc(signalo, in_number);
 
-	case INV:
-		sim_net->value_fault_flag[tst_number] = 1;
+	//	det_temp = temp ^ signalo->val;
 
-		sim_net->in[0]->value_fault_flag[tst_number] = 0;
+	//	signalo->fault_flag = signalo->fault_flag | (signali->fault_flag & det_temp);
 
-		if (sim_net->n_out == 0) {
-			flag = 1;
-		}
-		else {
-			flag = 2;
-		}
+	//	queue_enqueue(signalo);
 
-		break;
+	//}
 
-	case AND:
+	////queue_enqueue(signali);
 
-		for (in_number = 0; in_number < num; in_number++) {
-			if (in_value[in_number] == 0) {
-				result = 0;
-				break;
-			}
-			result = 1;
-		}
+	////全出力側FFRに故障伝搬するまで
+	//while (queue_empty() == 1) {
 
-		if (sim_net->value[tst_number] != result) {
+	//	signali = queue_dequeue();
 
-			sim_net->value_fault_flag[tst_number] = 1;
+	///*	if (signali->n_out >= 2) {
 
-			if (sim_net->n_out == 0) {
-				flag = 1;
-			}
-			else {
-				flag = 2;
-			}
-		}
+	//		for (int out_number = 0; out_number < signali->n_out; out_number++) {
 
-		break;
+	//			signali->out[out_number]->fault_flag = signali->fault_flag;
 
-	case NAND:
+	//			queue_enqueue(signali->out[out_number]);
+	//		}
 
-		for (in_number = 0; in_number < num; in_number++) {
-			if (in_value[in_number] == 0) {
-				result = 1;
-				break;
-			}
-			result = 0;
-		}
+	//	}*/
 
-		if (sim_net->value[tst_number] != result) {
-			sim_net->value_fault_flag[tst_number] = 1;
-			if (sim_net->n_out == 0) {
-				flag = 1;
-			}
-			else {
-				flag = 2;
-			}
-		}
+	//	//修正前
+	//	//対象外FFR-FOS
+	//	if (signali->n_out >= 2) {
 
-		break;
+	//		int ffr_id = signali->ffr_id;
 
-	case OR:
-		for (in_number = 0; in_number < num; in_number++) {
-			if (in_value[in_number] == 1) {
-				result = 1;
-				break;
-			}
-			result = 0;
-		}
+	//		temp = signali->fault_flag;
 
-		if (sim_net->value[tst_number] != result) {
-			sim_net->value_fault_flag[tst_number] = 1;
+	//		//対象外FFRの出力応答フラグ継承
+	//		for (int net_number = 0; net_number < n_tpi_po; net_number++) {
 
-			if (sim_net->n_out == 0) {
-				flag = 1;
-			}
-			else {
-				flag = 2;
-			}
-		}
+	//			tpi_po_net[net_number]->fault_flag = tpi_po_net[net_number]->fault_flag | (temp & ffr[ffr_id].po_fault_flag[net_number]);
 
-		break;
+	//		}
 
-	case NOR:
-		for (in_number = 0; in_number < num; in_number++) {
-			if (in_value[in_number] == 1) {
-				result = 0;
-				break;
-			}
-			result = 1;
-		}
+	//	}
 
-		if (sim_net->value[tst_number] != result) {
-			sim_net->value_fault_flag[tst_number] = 1;
-			if (sim_net->n_out == 0) {
-				flag = 1;
-			}
-			else {
-				flag = 2;
-			}
-		}
+	//	/////////////////*/
 
-		break;
+	//	//修正前
+	//	//対象外FFR-tpi_FOS
+	//	else if ((signali->n_out == 1) && (signali->tpi_flag == 1)) {
 
-	case EXOR:
+	//		int ffr_id = signali->ffr_id;
 
-		if (in_value[0] != in_value[1]) {
-			result = 1;
-		}
-		else {
-			result = 0;
-		}
+	//		temp = signali->fault_flag;
 
-		if (sim_net->value[tst_number] != result) {
-			sim_net->value_fault_flag[tst_number] = 1;
-			if (sim_net->n_out == 0) {
-				flag = 1;
-			}
-			else {
-				flag = 2;
-			}
-		}
+	//		//対象外FFRの出力応答フラグ継承
+	//		for (int net_number = 0; net_number < n_tpi_po; net_number++) {
 
-	case EXNOR:
+	//			tpi_po_net[net_number]->fault_flag = tpi_po_net[net_number]->fault_flag | (temp & ffr[ffr_id].po_fault_flag[net_number]);
 
-		if (in_value[0] != in_value[1]) {
-			result = 0;
-		}
-		else {
-			result = 1;
-		}
+	//		}
+	//	}
+	//	////////////////////////*/
 
-		if (sim_net->value[tst_number] != result) {
-			sim_net->value_fault_flag[tst_number] = 1;
-			if (sim_net->n_out == 0) {
-				flag = 1;
-			}
-			else {
-				flag = 2;
-			}
-		}
+	//	/*/修正後
+	//	//FOS
+	//	if (signali->n_out >= 2) {
+	//		//FOB->fault_flag算出,エンキュー
+	//		for (int out_number = 0; out_number < signali->n_out; out_number++) {
+
+	//			signali->out[out_number]->fault_flag = signali->fault_flag;
+
+	//			queue_enqueue(signali->out[out_number]);
+
+	//		}
+	//	}
+
+	//	/////////////////////////////////*/
+
+	//	//FOS,tpi_FOS以外(基本的にはここに分岐)
+	//	else if (signali->n_out == 1) {
+
+	//		signalo = signali->out[0];
+
+	//		int in_number;
+	//		for (in_number = 0; in_number < signalo->n_in; in_number++) {
+	//			
+	//			if (signali == signalo->in[in_number]) {
+	//				break;
+	//			}
+
+	//		}
+
+	//		temp = fault_value_calc(signalo, in_number);
+
+	//		det_temp = temp ^ signalo->val;
+
+	//		signalo->fault_flag = signalo->fault_flag | (signali->fault_flag & det_temp);
+
+	//		queue_enqueue(signalo);
+
+	//	}
+
+	//	////tpi_FOS(分岐元信号線以外)
+	//	////(出力線にfault_flagを印加)
+	//	//if ((signalo->tpi_flag == 1)&&(signalo->n_out==1)) {
+
+	//	//	//out->FOS->flag = out->FOS->flag | (tpi_FOS->flag & tpi_FOS->det)
+	//	//	ffr[signalo->out[0]->ffr_id].fos->fault_flag = ffr[signalo->out[0]->ffr_id].fos->fault_flag | (signalo->fault_flag & signalo->det);
+	//	//	
+	//	//	//出力FFR内-FOSエンキュー
+	//	//	queue_enqueue(ffr[signalo->out[0]->ffr_id].fos);
+
+	//	//}
+
+	//	////FOS
+	//	//else if (signalo->n_out >= 2) {
+
+	//	//	for (int out_number = 0; out_number < signalo->n_out; out_number++) {
+
+	//	//		//FOB->flag= FOS->flag
+	//	//		signalo->out[out_number]->fault_flag = signalo->fault_flag;
+
+	//	//		//FOBエンキュー
+	//	//		queue_enqueue(signalo->out[out_number]);
+	//	//		
+	//	//	}
+
+	//	//}
+
+	//	////FOB
+	//	//else if (signalo->n_out == 1) {
+
+	//	//	//FOS->flag = FOS->flag | (FOB->flag & FOB->det)
+	//	//	ffr[signalo->ffr_id].fos->fault_flag = ffr[signalo->ffr_id].fos->fault_flag | (signalo->fault_flag & signalo->det);
+
+	//	//	//FOSエンキュー
+	//	//	queue_enqueue(ffr[signalo->ffr_id].fos);
+
+	//	//}
+
+	//}
+
+	//
 
 
-	}//switch文終了
+	/*/確認用
+	printf("\nFFR%d\n", ffr_number);
+	for (int po_number = 0; po_number < n_tpi_po; po_number++) {
+		printf("%s-fval\t", tpi_po_net[po_number]->name);
+		printBinary(ffr[ffr_number].po_fault_flag[po_number], sim_test); printf("\n");
+	}///////////////////////*/
 
-	if (sim_net->tpi_flag == 1) {
-		sim_net->tpi_flag = 2;	//観測ポイントである信号線のtpiフラグを2(故障伝搬フラグを有効)にする
-	}
-
-	if (sim_net->n_in >= 2) {
-		free(in_value);
-	}
-
-	if (flag == 0) {		//故障が外部出力まで伝搬しない
-		return flag;
-	}
-
-	else if (flag == 2) {
-
-		if (sim_net->n_out >= 2) {
-
-			sim_net->value_fault_flag[tst_number] = 0;	//故障値算出関数の再起処理が終了するため対象信号線の故障伝搬フラグを初期化
-
-			for (out_number = 0; out_number < sim_net->n_out; out_number++) {
-				if (sim_net->out[out_number]->detec[tst_number] == 1) {		//FoutBranchが故障伝搬経路であるかどうか
-					queue_enqueue(sim_net->out[out_number]);
-				}
-			}
-		}
-
-		else if (sim_net->n_out == 1) {
-			if (gate_calc_fault(tst_number, sim_net->out[0]) == 1) {
-				flag = 1;
-			}
-		}
-	}
-
-	return flag;	//flag=1:外部出力まで故障が伝搬した,2:FoutStemまで故障が伝搬した,0:外部出力まで故障が伝搬しなかった
 
 }
