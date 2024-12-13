@@ -2,14 +2,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "Netlist.h"
 #include "Queue.h"
 #include "Command.h"
 #include "Fault_dic.h"
 #include "FFR.h"
+#include "HASH.h"
 
-int command(int argc,char** argv) {
+int command(int argc, char** argv) {
 
 	//オプション初期化
 
@@ -43,7 +45,7 @@ int command(int argc,char** argv) {
 
 	}
 
-	if (strcmp(opt.tp,"NO")==0) {
+	if (strcmp(opt.tp, "NO") == 0) {
 		printf("テストパターンファイル名が入力されていません\n");
 		return 0;
 	}
