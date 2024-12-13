@@ -15,6 +15,11 @@ typedef struct Unconf_Fault_Pair {
 
 HASH hash;
 
+HASH backup;
+
 int Confirm_Fault_Search(int test_number, int hash_number, int fault_number);		//ハッシュ内故障探索関数
 void Subdivide_Judge(int test_number, int hash_number, int* devide_hash_number);	//未識別故障ペア細分化判定関数
 void hash_reset_DICT(int test_number);												//故障辞書削除関数
+void hash_backup_save(void);														//未識別故障ペア集合保存関数
+void make_tpi_select_net(void);														//選択候補観測ポイント配列生成関数
+void hash_bachup_restore(void);														//未識別故障ペア集合再構築関数
