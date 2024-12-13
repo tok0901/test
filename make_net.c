@@ -2,12 +2,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "Netlist.h"
 #include "Queue.h"
 #include "Command.h"
 #include "Fault_dic.h"
 #include "FFR.h"
+#include "HASH.h"
 
 
 //ネットリスト_レベルソート
@@ -22,7 +24,7 @@ int make_net(NLIST* nl) {
 	Que.front = 0;
 	Que.rear = 0;
 	NLIST* signalo;
-	
+
 	//レベル初期化
 
 	int i;
@@ -37,7 +39,7 @@ int make_net(NLIST* nl) {
 
 		pi[i]->level = 1;
 		queue_enqueue(pi[i]);
-		printf("外部入力信号線:%s  level:%d\n", pi[i]->name, pi[i]->level);
+		//printf("外部入力信号線:%s  level:%d\n", pi[i]->name, pi[i]->level);
 
 	}
 
@@ -53,7 +55,7 @@ int make_net(NLIST* nl) {
 			printf("オーバーフロー\n");
 			return 0;
 		}
-		
+
 		signalo = queue_dequeue();//信号線をデキュー
 
 		if (signalo->level < 1) {//デキューした信号線レベルが－1である
@@ -84,7 +86,7 @@ int make_net(NLIST* nl) {
 			if (level_flag == 1) {
 
 				signalo->level = max + 1;	//現信号線レベルの算出
-				printf("レベル付与成功 %s Level:%d\n", signalo->name, signalo->level);
+				//printf("レベル付与成功 %s Level:%d\n", signalo->name, signalo->level);
 				max = 0;//比較する最大レベルをリセット
 
 			}
@@ -111,7 +113,7 @@ int make_net(NLIST* nl) {
 
 	}
 
-	printf("レベル付け完了\n");
+	//printf("レベル付け完了\n");
 
 	//信号線ソート
 
@@ -126,13 +128,14 @@ int make_net(NLIST* nl) {
 
 	quick_sort(sort_net, 0, n_net - 1);
 
-	//ソート確認
+	//ソート後メンバ変数初期化
 
 	for (i = 0; i < n_net; i++) {
-		printf("レベル：%d, 名前:%6s, type:%d 入力数:%d, 出力数:%d\n", sort_net[i]->level, sort_net[i]->name, sort_net[i]->type,sort_net[i]->n_in,sort_net[i]->n_out);
+		sort_net[i]->sort_n = i;
+		//printf("レベル：%d, 名前:%6s, type:%d 入力数:%d, 出力数:%d\n", sort_net[i]->level, sort_net[i]->name, sort_net[i]->type, sort_net[i]->n_in, sort_net[i]->n_out);
 	}
 
-	printf("信号線正規化完了!\n\n\n");
+	//printf("信号線正規化完了!\n\n\n");
 
 	return 1;
 
