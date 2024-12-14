@@ -11,6 +11,8 @@
 #include "FFR.h"
 #include "HASH.h"
 
+#define BIT_20 20
+
 //引数をtest_number,sim_test,sim_netに修正
 int SAF_make_DICT(int test_number, int sim_test,NLIST* sim_net) {
 
@@ -22,57 +24,64 @@ int SAF_make_DICT(int test_number, int sim_test,NLIST* sim_net) {
 	//printf("\n\n***********FFR%d**********\n", ffr_number);
 	for (int test_dic = test_number; test_dic < test_number + sim_test; test_dic++) {
 
-		//出力応答正常値算出
-		ULLI* temp;
-		temp = observate_po_val(test_dic,PO_VAL);
-
-		//出力応答異常値算出
-		ULLI* f_temp;
-		f_temp = calc_po_val(test_dic, sim_net, PO_VAL);
-
-		//両出力応答値比較
-		int po_val_flag;
-		po_val_flag = strcmp_po_val(temp, f_temp, PO_VAL);
-
-		/*/確認用
 		int tst_number = test_dic % BIT_64;
-		if ((bit_search_N(sim_net->det, tst_number) == 1) && (po_val_flag == 1)) {
 
-			printf("\ntp%d\t%s", test_dic, sim_net->name);
-			printf("\nval:"); printBinary(sim_net->val, sim_test); printf("\n");
-			printf("det:"); printBinary(sim_net->det, sim_test); printf("\n");
-
-			printf("\n正常値:");
-			for (int bit_number = 0; bit_number < n_64bit_po; bit_number++) {
-				printBinary(temp[bit_number], BIT_64);
-			}
-			printf("\n故障値:");
-			for (int bit_number = 0; bit_number < n_64bit_po; bit_number++) {
-				printBinary(f_temp[bit_number], BIT_64);
-			}
-		}//////////////////////////*/
+		if (bit_search_N(sim_net->det, tst_number) == 1) {
 
 
-		free(temp);
-		free(f_temp);
+			//出力応答正常値算出
+			ULLI* temp;
+			temp = observate_po_val(test_dic, PO_VAL);
 
-		//sim_net-検出可能な場合
-		if (po_val_flag == 1) {
+			//出力応答異常値算出
+			ULLI* f_temp;
+			f_temp = calc_po_val(test_dic, sim_net, PO_VAL);
 
-			ULLI* f_temp = calc_po_val(test_dic, sim_net, TPI_PO_VAL);
+			//両出力応答値比較
+			int po_val_flag;
+			po_val_flag = strcmp_po_val(temp, f_temp, PO_VAL);
 
 			/*/確認用
-			printf("\ntp%d", test_dic);
-			printf("\n出力応答値:");
-			print_po_val(f_temp); printf("\n");
-			//////////////////////////*/
+			int tst_number = test_dic % BIT_64;
+			if ((bit_search_N(sim_net->det, tst_number) == 1) && (po_val_flag == 1)) {
+
+				printf("\ntp%d\t%s", test_dic, sim_net->name);
+				printf("\nval:"); printBinary(sim_net->val, sim_test); printf("\n");
+				printf("det:"); printBinary(sim_net->det, sim_test); printf("\n");
+
+				printf("\n正常値:");
+				for (int bit_number = 0; bit_number < n_64bit_po; bit_number++) {
+					printBinary(temp[bit_number], BIT_64);
+				}
+				printf("\n故障値:");
+				for (int bit_number = 0; bit_number < n_64bit_po; bit_number++) {
+					printBinary(f_temp[bit_number], BIT_64);
+				}
+			}//////////////////////////*/
 
 
-			//出力応答値探索及び故障辞書内-故障挿入場所設定
-			hash_insert_DICT(test_dic, f_temp);
+			free(temp);
+			free(f_temp);
 
-			//FFR内-全検出故障挿入及び故障辞書生成
-			fault_detect_DICT(test_dic, sim_net);
+			//sim_net-検出可能な場合
+			if (po_val_flag == 1) {
+
+				ULLI* f_temp = calc_po_val(test_dic, sim_net, TPI_PO_VAL);
+
+				/*/確認用
+				printf("\ntp%d", test_dic);
+				printf("\n出力応答値:");
+				print_po_val(f_temp); printf("\n");
+				//////////////////////////*/
+
+
+				//出力応答値探索及び故障辞書内-故障挿入場所設定
+				hash_insert_DICT(test_dic, f_temp);
+
+				//FFR内-全検出故障挿入及び故障辞書生成
+				fault_detect_DICT(test_dic, sim_net);
+
+			}
 
 		}
 
@@ -227,13 +236,13 @@ void hash_insert_DICT(int test_dic, ULLI* temp) {
 
 	if (insert_flag == 1) {
 
-		int bit_flag = n_net % BIT_64;
+		/*int bit_flag = n_net % BIT_64;
 		if (bit_flag == 0) {
 			bit_flag = n_net / BIT_64;
 		}
 		else {
 			bit_flag = n_net / BIT_64 + 1;
-		}
+		}*/
 
 		int n_hash, insert_number;
 		dic[test_dic].n_grp++;
@@ -241,8 +250,8 @@ void hash_insert_DICT(int test_dic, ULLI* temp) {
 		insert_number = n_hash - 1;
 		dic[test_dic].insert_number = insert_number;
 		dic[test_dic].unconf_fault[insert_number] = (NLIST**)malloc(sizeof(NLIST*) * 1000);
-		dic[test_dic].unconf_saf_fault[insert_number] = (ULLI*)malloc(sizeof(ULLI) * bit_flag);
-		for (int bit_number = 0; bit_number < bit_flag; bit_number++) {
+		dic[test_dic].unconf_saf_fault[insert_number] = (ULLI*)malloc(sizeof(ULLI) * BIT_20);
+		for (int bit_number = 0; bit_number < BIT_20; bit_number++) {
 			dic[test_dic].unconf_saf_fault[insert_number][bit_number] = 0ULL;
 		}
 		dic[test_dic].po_val[insert_number] = (ULLI*)malloc(sizeof(ULLI) * n_64bit);
@@ -263,9 +272,6 @@ void fault_detect_DICT(int test_dic, NLIST* sim_net) {
 	int fault_number = dic[test_dic].n_unconf_fault[hash_number];
 	int saf_number = fault_number / BIT_64;
 	int det_number = fault_number % BIT_64;
-
-
-	if (bit_search_N(sim_net->det, tst_number) == 1) {
 
 
 		//1縮退故障検出
@@ -292,19 +298,16 @@ void fault_detect_DICT(int test_dic, NLIST* sim_net) {
 			}
 		}
 
-		
 
-	}
+	////故障挿入失敗
+	//if (dic[test_dic].n_unconf_fault[hash_number] == 0) {
 
-	//故障挿入失敗
-	if (dic[test_dic].n_unconf_fault[hash_number] == 0) {
+	//	free(dic[test_dic].unconf_fault[hash_number]);
+	//	free(dic[test_dic].unconf_saf_fault[hash_number]);
+	//	free(dic[test_dic].po_val[hash_number]);
+	//	dic[test_dic].n_grp--;
 
-		free(dic[test_dic].unconf_fault[hash_number]);
-		free(dic[test_dic].unconf_saf_fault[hash_number]);
-		free(dic[test_dic].po_val[hash_number]);
-		dic[test_dic].n_grp--;
-
-	}
+	//}
 
 }
 
