@@ -11,6 +11,7 @@
 #include "FFR.h"
 #include "HASH.h"
 
+
 #define SELECT 1	//観測ポイント評価段階
 #define INSERT 2	//観測ポイント挿入段階
 
@@ -25,10 +26,6 @@ int make_net(NLIST* nl);
 //
 //FFR分割
 int devide_ffr(void);
-//
-//
-//等価故障解析
-void saf_rep_flist(void);
 //
 //
 //故障シミュレーション
@@ -67,7 +64,7 @@ int main(int argc, char* argv[]) {
 	if (scan_id != 1) {
 		return 0;
 	}/////////////////////////*/
-	
+
 
 	//コマンド解析実行
 	if (command(argc, argv) != 1) {
@@ -88,9 +85,6 @@ int main(int argc, char* argv[]) {
 		printf("\n\n信号線正規化エラー\n");
 		return 0;
 	}/////////////////////////*/
-
-	//等価故障解析
-	saf_rep_flist();
 
 
 	//ネットリスト読込み完了///////////////////////////////////////////////////////////////////////////////////
@@ -115,9 +109,8 @@ int main(int argc, char* argv[]) {
 		/////////////////////////*/
 
 
-
 			//実行確認
-		if (n_tpi>=1) {
+		if (n_tpi == 2) {
 			printf("FFR分割を開始しますか？(Yes:1,No:2)\n");
 			scanf("%d", &scan_id);
 			if (scan_id != 1) {
@@ -125,7 +118,7 @@ int main(int argc, char* argv[]) {
 			}/////////////////////////*/
 
 		}
-		
+
 
 		//FFR分割
 		if (devide_ffr() != 1) {
@@ -169,15 +162,15 @@ int main(int argc, char* argv[]) {
 			for (int net_number = 0; net_number < n_net; net_number++) {
 
 				if (sort_net[net_number]->test_sf0 == YES) {
-					
+
 					ffr[sort_net[net_number]->ffr_id].n_unconf_fault_det++;
-					
+
 				}
 
 				if (sort_net[net_number]->test_sf1 == YES) {
-					
+
 					ffr[sort_net[net_number]->ffr_id].n_unconf_fault_det++;
-					
+
 				}
 			}
 
@@ -193,7 +186,7 @@ int main(int argc, char* argv[]) {
 
 				}
 			}/////////////////////////*/
-			
+
 
 			/*/確認用
 			printf("<detectability確認>");
@@ -205,7 +198,7 @@ int main(int argc, char* argv[]) {
 				sim_net = sort_net[net_number];
 
 			}/////////////////////////*/
-			
+
 
 			/*/確認用
 			for (int net_number = 0; net_number < n_net; net_number++) {
@@ -259,16 +252,16 @@ int main(int argc, char* argv[]) {
 			}
 			/////////////////////////////*/
 
-			
+
 			//故障辞書生成実行(テストパターンtest_number～sim_testまで)
 			for (int net_number = 0; net_number < n_net; net_number++) {
 
 				if ((sort_net[net_number]->test_sf0 == YES) || (sort_net[net_number]->test_sf1 == YES)) {
 
-					if ((sort_net[net_number]->conf_fault0_flag!=1)||(sort_net[net_number]->conf_fault1_flag!=1)) {
+					if ((sort_net[net_number]->conf_fault0_flag != 1) || (sort_net[net_number]->conf_fault1_flag != 1)) {
 						if (SAF_make_DICT(test_number, sim_test, sort_net[net_number]) != 1) {
 							printf("\n\n故障辞書生成エラー\n");
-								return 0;
+							return 0;
 						}
 
 					}
@@ -277,7 +270,7 @@ int main(int argc, char* argv[]) {
 			/////////////////////////*/
 
 
-			printf("\n****************%d番目から%d番目のテストパターンによる故障検出完了********************************\n", test_number, test_number + sim_test-1);
+			printf("\n****************%d番目から%d番目のテストパターンによる故障検出完了********************************\n", test_number, test_number + sim_test - 1);
 
 
 			/*/確認用(故障シミュレーション)
@@ -320,7 +313,7 @@ int main(int argc, char* argv[]) {
 						else {
 							printf("s-a-1\t%s\n", dic[tst_number].unconf_fault[hash_number][fault_number]->name);
 							dic[tst_number].unconf_fault[hash_number][fault_number]->sim_fault1_flag = 1;
-						
+
 							if (dic[tst_number].unconf_fault[hash_number][fault_number]->conf_fault1_flag != 1) {
 								n_result_unconf_fault_pair++;
 							}
@@ -328,7 +321,7 @@ int main(int argc, char* argv[]) {
 
 						det_number++;
 
-						
+
 
 						////信号線検索
 						//if (strcmp(dic[tst_number].unconf_fault[hash_number][fault_number]->name, target) == 0) {
@@ -417,9 +410,9 @@ int main(int argc, char* argv[]) {
 				for (int fault_number = 0; fault_number < hash.n_index[hash_number]; fault_number++) {
 
 					if (hash.unconf_fault[hash_number][fault_number] != NULL) {
-						
+
 						ffr[hash.unconf_fault[hash_number][fault_number]->ffr_id].n_unconf_fault++;
-						
+
 					}
 				}
 			}
@@ -427,15 +420,15 @@ int main(int argc, char* argv[]) {
 
 
 		/*/確認用
-		for (int ffr_number = 0; ffr_number < n_ffr; ffr_number++) {
-			printf("\nFFR_ID:%d\n信号線数:%d\n未識別故障格納個数:%d\n", ffr_number, ffr[ffr_number].n_net_sim, ffr[ffr_number].n_unconf_fault);
+		if (tpi_flag == INSERT) {
+			for (int ffr_number = 0; ffr_number < n_ffr; ffr_number++) {
+				printf("\nFFR_ID:%d\n信号線数:%d\n未識別故障格納個数:%d\n", ffr_number, ffr[ffr_number].n_net_sim, ffr[ffr_number].n_unconf_fault);
+			}
 		}
 		/////////////////*/
 
-
-		if (confirm_flag != 0) {
-			
-
+		/*/従来手法観測ポイント挿入法(スコア計算による観測ポイント選択)
+		if (confirm_flag!=0) {
 			//観測ポイント挿入実行
 			if (TPI_Score_Calc() != 1) {
 				printf("\n\n観測ポイント挿入エラー\n");
@@ -444,33 +437,109 @@ int main(int argc, char* argv[]) {
 				}
 				printf("\n\n観測ポイント数:%d\n", n_tpi);
 				return 0;
-			}/////////////////////////*/
-
-		}
-
-		/*/未識別故障ペア集合保存
-		if (tpi_flag == INSERT) {
-			hash_backup_save();
-		}///////////////*/
-
-		//選択候補観測ポイント配列生成
-
-		
-	
-		//検出対象故障更新(識別故障を対象外に設定)
-		if (tpi_flag == INSERT) {
-			for (int net_number = 0; net_number < n_net; net_number++) {
-				if (sort_net[net_number]->conf_fault0_flag == 1) {
-					sort_net[net_number]->test_sf0 = NO;
-				}
-
-				if (sort_net[net_number]->conf_fault1_flag == 1) {
-					sort_net[net_number]->test_sf1 = NO;
-				}
 			}
-		}/////////////*/
+		}/////////////////////////*/
 
-		printf("\n検出対象故障数:%d\n",n_rep);
+
+		//提案手法観測ポイント挿入法(未識別故障箇所とFFR解析による観測ポイント選択)
+		if (confirm_flag != 0) {
+
+
+			if (tpi_flag == INSERT) {
+
+				//検出対象故障更新(識別故障を対象外に設定)
+				for (int net_number = 0; net_number < n_net; net_number++) {
+					if (sort_net[net_number]->conf_fault0_flag == 1) {
+						sort_net[net_number]->test_sf0 = NO;
+					}
+
+					if (sort_net[net_number]->conf_fault1_flag == 1) {
+						sort_net[net_number]->test_sf1 = NO;
+					}
+				}
+
+
+				//観測ポイント評価段階へ切替え
+				tpi_flag = SELECT;
+
+				//未識別故障ペア集合保存(バックアップ)
+				hash_backup_save(BACKUP_SELECT);
+
+				//選択候補観測ポイント配列生成
+				select_ffr_id = make_tpi_select_net();
+
+				//選択候補観測ポイント挿入
+				n_tpi_po++;
+				n_tpi++;
+				tpi_po_net = (NLIST**)realloc(tpi_po_net, sizeof(NLIST*) * n_tpi_po);
+				tpi_po_net[n_tpi_po - 1] = tpi_select_net[select_sim_number].select_net;
+				tpi_net = (NLIST**)realloc(tpi_net, sizeof(NLIST*) * n_tpi);
+				tpi_net[n_tpi - 1] = tpi_select_net[select_sim_number].select_net;
+				tpi_net[n_tpi - 1]->tpi_flag = 1;
+
+				printf("\n評価観測ポイント:%s\n\n評価観測ポイント数:%d", tpi_net[n_tpi - 1]->name, n_select_net);
+
+			}
+
+			else if (tpi_flag == SELECT) {
+
+				//未識別故障ペア数保存
+				tpi_select_net[select_sim_number].n_unconf_fault_pair = n_unconf_fault_grp;
+				tpi_select_net[select_sim_number].select_net->tpi_flag = 0;
+
+				//選択候補観測ポイント配列指定要素番号更新
+				select_sim_number++;
+
+				//選択候補観測ポイント評価が残っている場合
+				if (select_sim_number < n_select_net) {
+
+					//未識別故障ペア集合(本体)削除
+					//hash_backup_reset(HASH_SELECT);
+
+					//未識別故障ペア集合(本体)再構築
+					hash_backup_save(HASH_SELECT);
+
+					//選択候補観測ポイント更新,挿入
+					tpi_po_net[n_tpi_po - 1] = tpi_select_net[select_sim_number].select_net;
+					tpi_net[n_tpi - 1] = tpi_select_net[select_sim_number].select_net;
+					tpi_net[n_tpi - 1]->tpi_flag = 1;
+
+					printf("\n\n評価観測ポイント:%s\n\n評価観測ポイント数:%d\n", tpi_net[n_tpi - 1]->name, n_select_net);
+
+				}
+
+				//全選択候補観測ポイント評価が完了した場合
+				else if (select_sim_number >= n_select_net) {
+
+					//観測ポイント挿入段階へ切替え
+					tpi_flag = INSERT;
+
+					//未識別故障ペア集合(本体)削除
+					//hash_backup_reset(HASH_SELECT);
+
+					//未識別故障ペア集合(本体)再構築
+					hash_backup_save(HASH_SELECT);
+
+					//観測ポイント挿入
+					tpi_insert();
+
+					//未識別故障ペア集合(バックアップ)削除
+					//hash_backup_reset(BACKUP_SELECT);
+
+					printf("\n\n**************選択観測ポイント:%s********************\n\n選択FFR:%d\n\n挿入観測ポイント数:%d\n", tpi_net[n_tpi - 1]->name,select_ffr_id, n_tpi);
+
+				}
+
+
+			}
+
+			//FFR構造体配列の領域解放
+			ffr_reset();
+
+		}/////////////////*/
+
+
+		printf("\n検出対象故障数:%d\n", n_rep);
 
 		printf("\n検出故障数:%.0f\n", n_sim_fault);
 
