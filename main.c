@@ -58,14 +58,6 @@ int main(int argc, char* argv[]) {
 	//ネットリスト読込み実行/////////////////////////////////////////////////////////////////
 
 
-	/*/実行確認
-	printf("ネットリスト読込みを開始しますか？(Yes:1,No:2)\n");
-	scanf("%d", &scan_id);
-	if (scan_id != 1) {
-		return 0;
-	}/////////////////////////*/
-
-
 	//コマンド解析実行
 	if (command(argc, argv) != 1) {
 		printf("\n\nコマンド解析エラー\n");
@@ -144,14 +136,6 @@ int main(int argc, char* argv[]) {
 			}
 
 
-			/*/実行確認
-			printf("%d番目から%d番目のテストパターンによる故障シミュレーションを開始しますか？(Yes:1,No:2)\n",test_number,test_number+sim_test);
-			scanf("%d", &scan_id);
-			if (scan_id != 1) {
-				return 0;
-			}/////////////////////////*/
-
-
 			//論理シミュレーション実行
 			if (losic_simulation(test_number, sim_test) != 1) {
 				printf("\n\n論理シミュレーションエラー\n");
@@ -159,6 +143,7 @@ int main(int argc, char* argv[]) {
 			}/////////////////////////*/
 
 
+			//検出対象故障カウント
 			for (int net_number = 0; net_number < n_net; net_number++) {
 
 				if (sort_net[net_number]->test_sf0 == YES) {
@@ -200,26 +185,6 @@ int main(int argc, char* argv[]) {
 			}/////////////////////////*/
 
 
-			/*/確認用
-			for (int net_number = 0; net_number < n_net; net_number++) {
-
-				if (sort_net[net_number]->det_flag != 1) {
-					printf("\nCPTエラー:%s type:%d\t", sort_net[net_number]->name,sort_net[net_number]->type);
-					printBinary(sort_net[net_number]->det, sim_test);
-				}
-
-				//未検出故障のID入力:n
-				if (sort_net[net_number]->n==1211) {
-					printf("\n未検出故障:%s type:%d\n", sort_net[net_number]->name, sort_net[net_number]->type);
-					//printf("\n端子名:%s\n", sort_net[net_number]->name_port);
-					//printf("\nインスタンス名:%s\n", sort_net[net_number]->name_ins);
-					printf("val:"); printBinary(sort_net[net_number]->val, sim_test); printf("\n");
-					printf("det:"); printBinary(sort_net[net_number]->det, sim_test); printf("\n");
-				}
-
-			}/////////////////////////*/
-
-
 			//故障辞書領域確保
 			malloc_DICT(test_number, sim_test);
 			/////////////////////////*/
@@ -236,21 +201,6 @@ int main(int argc, char* argv[]) {
 				}
 
 			}/////////////////////////*/
-
-
-			/*/確認用
-			printf("\n\n**********************PPSFP完了*******************************\n");
-			printf("<出力応答値確認>\n");
-			for (int ffr_number = 0; ffr_number < n_ffr; ffr_number++) {
-				printf("\nFFR%d", ffr[ffr_number].ffr_id);
-				for (int po_number = 0; po_number < n_tpi_po; po_number++) {
-					if (ffr[ffr_number].po_fault_flag[po_number] != 0) {
-						printf("\n%s\t", tpi_po_net[po_number]->name);
-						printBinary(ffr[ffr_number].po_fault_flag[po_number], sim_test);
-					}
-				}
-			}
-			/////////////////////////////*/
 
 
 			//故障辞書生成実行(テストパターンtest_number～sim_testまで)
@@ -396,6 +346,17 @@ int main(int argc, char* argv[]) {
 			//全故障ペア数
 			all_conf_fault_pair = n_sim_fault * (n_sim_fault - 1) / 2;
 
+
+			printf("\n検出対象故障数:%d\n", n_rep);
+
+			printf("\n検出故障数:%.0f\n", n_sim_fault);
+
+			printf("\n未検出故障数:%d\n", not_fault);
+
+			printf("\n故障検出効率:%.2f％\n", result * 100);
+
+			printf("\n全故障ペア数:%.0f\n", all_conf_fault_pair);
+
 		}
 
 
@@ -477,7 +438,7 @@ int main(int argc, char* argv[]) {
 				tpi_net[n_tpi - 1] = tpi_select_net[select_sim_number].select_net;
 				tpi_net[n_tpi - 1]->tpi_flag = 1;
 
-				printf("\n評価観測ポイント:%s\n\n評価観測ポイント数:%d", tpi_net[n_tpi - 1]->name, n_select_net);
+				printf("\n評価観測ポイント:%s\n\n評価観測ポイント数:%d\n", tpi_net[n_tpi - 1]->name, n_select_net);
 
 			}
 
@@ -538,26 +499,15 @@ int main(int argc, char* argv[]) {
 
 		}/////////////////*/
 
-
-		printf("\n検出対象故障数:%d\n", n_rep);
-
-		printf("\n検出故障数:%.0f\n", n_sim_fault);
-
-		printf("\n未検出故障数:%d\n", not_fault);
-
-		printf("\n故障検出効率:%.2f％\n", result * 100);
-
-		printf("\n全故障ペア数:%.0f\n", all_conf_fault_pair);
-
 		printf("\n未識別故障ペア数:%d\n", n_unconf_fault_grp);
+
+		printf("\n未識別故障集合配列数:%.0f\n", conf_fault_module);
 
 		printf("\nDC:%.2f％\n", (double)(all_conf_fault_pair - n_unconf_fault_grp) / all_conf_fault_pair * 100);
 
-		if ((((all_conf_fault_pair - n_unconf_fault_grp) / all_conf_fault_pair * 100)) >= 99.9) {
+		if ((((all_conf_fault_pair - n_unconf_fault_grp) / all_conf_fault_pair * 100)) >= 100) {
 			printf("計測完了\n");
 		}
-
-		printf("\n未識別故障集合配列数:%.0f\n", conf_fault_module);
 
 
 	} while (n_sim_fault != conf_fault_module);
