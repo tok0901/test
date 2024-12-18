@@ -299,15 +299,15 @@ void fault_detect_DICT(int test_dic, NLIST* sim_net) {
 		}
 
 
-	////故障挿入失敗
-	//if (dic[test_dic].n_unconf_fault[hash_number] == 0) {
+	//故障挿入失敗
+	if (dic[test_dic].n_unconf_fault[hash_number] == 0) {
 
-	//	free(dic[test_dic].unconf_fault[hash_number]);
-	//	free(dic[test_dic].unconf_saf_fault[hash_number]);
-	//	free(dic[test_dic].po_val[hash_number]);
-	//	dic[test_dic].n_grp--;
+		free(dic[test_dic].unconf_fault[hash_number]);
+		free(dic[test_dic].unconf_saf_fault[hash_number]);
+		free(dic[test_dic].po_val[hash_number]);
+		dic[test_dic].n_grp--;
 
-	//}
+	}
 
 }
 
