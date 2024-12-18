@@ -112,16 +112,31 @@ int input_f(char* testfile, char* pinfile, char* vfile) {
 		
 	}
 
+	//等価故障解析
+	saf_rep_flist();
+
 	//未識別故障集合格納配列の領域確保,初期化
-	hash.unconf_fault = (NLIST***)malloc(sizeof(NLIST**) * n_net * 2);
-	hash.unconf_saf_fault = (ULLI**)malloc(sizeof(ULLI*) * n_net * 2);
-	hash.n_unconf_fault = (int*)malloc(sizeof(int) * n_net * 2);
-	hash.n_index = (int*)malloc(sizeof(int) * n_net * 2);
+	hash.unconf_fault = (NLIST***)malloc(sizeof(NLIST**) * n_rep);
+	hash.unconf_saf_fault = (ULLI**)malloc(sizeof(ULLI*) * n_rep);
+	hash.n_unconf_fault = (int*)malloc(sizeof(int) * n_rep);
+	hash.n_index = (int*)malloc(sizeof(int) * n_rep);
 	hash.n_grp = 0;
 	hash.insert_number = 0;
 	hash.confirm_number = 0;
-	hash.confirm_flag = (short**)malloc(sizeof(short*) * n_net * 2);
-	hash.n_confirm_flag = (short*)malloc(sizeof(short) * n_net * 2);
+	hash.confirm_flag = (short**)malloc(sizeof(short*) * n_rep);
+	hash.n_confirm_flag = (short*)malloc(sizeof(short) * n_rep);
+
+	//提案手法
+	backup.unconf_fault = (NLIST***)malloc(sizeof(NLIST**) * n_rep);
+	backup.unconf_saf_fault = (ULLI**)malloc(sizeof(ULLI*) * n_rep);
+	backup.n_unconf_fault = (int*)malloc(sizeof(int) * n_rep);
+	backup.n_index = (int*)malloc(sizeof(int) * n_rep);
+	backup.n_grp = 0;
+	backup.insert_number = 0;
+	backup.confirm_number = 0;
+	backup.confirm_flag = (short**)malloc(sizeof(short*) * n_rep);
+	backup.n_confirm_flag = (short*)malloc(sizeof(short) * n_rep);
+	//////////////*/
 
 	//観測ポイント配列の領域確保,観測ポイント数初期化
 	n_tpi_po = n_po;
