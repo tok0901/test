@@ -175,7 +175,23 @@ int n_tpi;//観測ポイント数
 
 NLIST** tpi_net;
 
-NLIST** tpi_select_net;
+typedef struct TPI_SELECT {
+
+	NLIST* select_net;
+	int		n_unconf_fault_pair;
+
+
+
+}SELECT;
+
+int select_sim_number;		//選択候補観測ポイント配列指定要素番号(指定する構造体配列の要素番号)
+
+int n_select_net;			//選択候補観測ポイント数
+
+SELECT* tpi_select_net;		//選択候補観測ポイント配列
+
+int select_ffr_id;			//選択候補FFR
+
 
 #define _CRTSECURE_NO_WARNINGS
 #pragma warning(disable:4996)
@@ -201,6 +217,8 @@ void print_po_val(ULLI* n);				//出力応答値標準出力関数
 int strcmp_po_val(ULLI* x, ULLI* y,int flag);	//出力応答値比較関数(0:一致,1:不一致)
 int count_number_64(int n);			//64bit列数算出関数
 
+//等価故障解析
+void saf_rep_flist(void);
 
 //論理シミュレーション
 //論理値算出関数
