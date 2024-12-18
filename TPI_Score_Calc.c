@@ -130,7 +130,7 @@ int TPI_Score_Calc(void) {
 	}
 
 	//観測ポイント挿入後は再度FFR分割-ffrの領域解放
-	free(ffr);
+	ffr_reset(ffr);
 
 	return 1;
 }
@@ -280,11 +280,12 @@ int TPI_Points_Count(void) {
 			//printf("識別状態:%d\t%d\n", sort_net[net_number]->conf_fault0_flag, sort_net[net_number]->conf_fault1_flag);
 			//printf("net_number=%d\n", sort_net[net_number]->sort_n);
 			//printf("level=%d\n", sort_net[net_number]->level);
-			//printf("FFR_ID:%d\n", sort_net[net_number]->ffr_id);
+			printf("FFR_ID:%d\n", sort_net[net_number]->ffr_id);
 			break;
 		}
 
 	}///////////////////////*/
+
 
 	for (int net_number = 0; net_number < n_net; net_number++) {
 
