@@ -100,9 +100,10 @@ int main(int argc, char* argv[]) {
 		n_64bit = count_number_64(n_tpi_po);
 		/////////////////////////*/
 
+		//(n_net/100)*1
 
 			//実行確認
-		if (n_tpi == 2) {
+		if (n_tpi > (n_net / 100) * 3) {
 			printf("FFR分割を開始しますか？(Yes:1,No:2)\n");
 			scanf("%d", &scan_id);
 			if (scan_id != 1) {
