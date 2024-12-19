@@ -14,6 +14,7 @@ typedef struct Fanout_FreeRegion {
 	int							n_unconf_fault_det;	//故障検出回数
 	int							n_unconf_fault;		//未識別故障格納個数
 	int							n_net_sim;			//格納信号線数
+	int							sim_flag;			//評価判定フラグ
 
 } FFR;
 
