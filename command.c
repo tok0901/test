@@ -11,6 +11,9 @@
 #include "FFR.h"
 #include "HASH.h"
 
+#define SIM_3	3
+#define SIM_10	10
+
 int command(int argc, char** argv) {
 
 	//オプション初期化
@@ -20,6 +23,10 @@ int command(int argc, char** argv) {
 	strcpy(opt.pin, "NO");					// ピンファイル
 
 	strcpy(opt.v, "NO");						// 組合せ回路ファイル
+
+	opt.n_ffr = SIM_3;
+
+	opt.n_net = SIM_10;
 
 	//コマンド解析
 
@@ -43,6 +50,21 @@ int command(int argc, char** argv) {
 			i++;
 		}
 
+		//評価FFR数
+		else if (strcmp(argv[i], "-ffr") == 0) {
+			if (atoi(argv[i + 1]) > 0) {
+				opt.n_ffr = atoi(argv[i + 1]);
+			}
+		}
+
+
+		//FFR内評価信号線数
+		else if (strcmp(argv[i], "-net") == 0) {
+			if (atoi(argv[i + 1]) > 0) {
+				opt.n_net = atoi(argv[i + 1]);
+			}
+		}
+
 	}
 
 	if (strcmp(opt.tp, "NO") == 0) {
@@ -60,9 +82,9 @@ int command(int argc, char** argv) {
 		return 0;
 	}
 
-	printf("テストパターンファイル名:%s\n外部入力ピンファイル名:%s\n組合せ回路ファイル名:%s\n\n\n", opt.tp, opt.pin, opt.v);
+	printf("テストパターンファイル名:%s\n外部入力ピンファイル名:%s\n組合せ回路ファイル名:%s\n評価FFR数:%d個\n評価信号線数:%d本\n\n\n", opt.tp, opt.pin, opt.v,opt.n_ffr,opt.n_net);
 
-	printf("コマンド解析完了!\n\n\n");
+	//printf("コマンド解析完了!\n\n\n");
 
 	return 1;
 
