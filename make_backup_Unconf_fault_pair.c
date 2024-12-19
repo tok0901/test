@@ -182,46 +182,66 @@ void hash_backup_save(int flag) {
 //選択候補観測ポイント配列生成関数(戻り値:選択候補観測ポイント数)
 int make_tpi_select_net(void) {
 
-	int n_max_unconf_fault = 0,
-		max_ffr_number = -1;
-
 	n_select_net = 0;
 
 
-	//全FFR-最大未識別故障格納個数算出
-	for (int ffr_number = 0; ffr_number < n_ffr; ffr_number++) {
+	//評価FFR選択
+	for (int sim_ffr_number = 0; sim_ffr_number < opt.n_ffr; sim_ffr_number++) {
 
-		if (n_max_unconf_fault < ffr[ffr_number].n_unconf_fault) {
 
-			n_max_unconf_fault = ffr[ffr_number].n_unconf_fault;
-			max_ffr_number = ffr_number;
+		int n_max_unconf_fault = 0,
+			n_sim_net=0,
+			max_ffr_number = -1;
 
-		}
 
-	}
+		//全FFR-最大未識別故障格納個数算出
+		for (int ffr_number = 0; ffr_number < n_ffr; ffr_number++) {
 
-	/*/実験用
-	max_ffr_number = 1;
-	//////////////*/
+			if ((n_max_unconf_fault < ffr[ffr_number].n_unconf_fault)&&(ffr[ffr_number].sim_flag!=1)) {
 
-	//対象FFR内未識別故障信号線保存
-	for (int net_number = n_net - 1 - n_po; net_number >= 0; net_number--) {
+				n_max_unconf_fault = ffr[ffr_number].n_unconf_fault;
+				max_ffr_number = ffr_number;
 
-		if (sort_net[net_number]->ffr_id == max_ffr_number) {
-
-			//PO,tpi_netはスルー
-			if ((sort_net[net_number]->tpi_flag != 1)&&(sort_net[net_number]->n_out!=0)) {
-				queue_enqueue(sort_net[net_number]);
-				n_select_net++;
 			}
 
 		}
 
+
+		//対象FFR内未識別故障信号線保存
+		for (int net_number = n_net - 1 ; net_number >= 0; net_number--) {
+
+			if (sort_net[net_number]->ffr_id == max_ffr_number) {
+
+				//PO,tpi_netはスルー
+				if ((sort_net[net_number]->tpi_flag != 1 )&&(sort_net[net_number]->n_out!=0)) {
+					queue_enqueue(sort_net[net_number]);
+					n_sim_net++;
+					n_select_net++;
+				}
+
+				if (n_sim_net >= opt.n_net) {
+					break;
+				}
+
+			}
+
+		}
+
+		ffr[max_ffr_number].sim_flag = 1;
+
 	}
+	
+
+	
+
+	/*/実験用
+	max_ffr_number = 360;
+	//////////////*/
+
 
 
 	//選択候補観測ポイント配列生成
-	tpi_select_net = (SELECT*)malloc(sizeof(SELECT) * n_select_net);
+	//tpi_select_net = (SELECT*)malloc(sizeof(SELECT) * n_select_net);
 	int select_number = 0;
 
 	while (queue_empty() == 1) {
@@ -232,10 +252,16 @@ int make_tpi_select_net(void) {
 		select_number++;
 	}
 
+	if (n_select_net == 0) {
+		printf("確認");
+	}
+
 	//選択候補観測ポイント配列指定要素番号初期化
 	select_sim_number = 0;
 
-	return max_ffr_number;
+	//return max_ffr_number;
+
+	return 1;
 
 }
 
@@ -303,8 +329,14 @@ void tpi_insert(void) {
 	tpi_net[n_tpi - 1] = tpi_select_net[min_number].select_net;
 	tpi_net[n_tpi - 1]->tpi_flag = 1;
 
-	free(tpi_select_net);
-	n_select_net = 0;
+	//評価観測ポイントリセット
+	for (int select_number = 0; select_number < n_select_net; select_number++) {
+
+		tpi_select_net[select_number].select_net = NULL;
+	}///////////////*/
+
+	//free(tpi_select_net);
+	//n_select_net = 0;
 
 
 }
