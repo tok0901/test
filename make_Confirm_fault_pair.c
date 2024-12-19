@@ -351,13 +351,14 @@ int make_Confirm_Fault_Pair(int test_number) {
 				if (hash.unconf_fault[hash_number][reset_number] != NULL) {
 					hash.n_index[hash_number] = 1;
 					net_temp = hash.unconf_fault[hash_number][reset_number];
-					free(hash.unconf_fault[hash_number]);
-					hash.unconf_fault[hash_number] = (NLIST**)malloc(sizeof(NLIST*));
+					hash.unconf_fault[hash_number][reset_number] = NULL;
+					//free(hash.unconf_fault[hash_number]);
+					//hash.unconf_fault[hash_number] = (NLIST**)malloc(sizeof(NLIST*)*1);
 					hash.unconf_fault[hash_number][0] = net_temp;
 					saf_temp = bit_search_N(hash.unconf_saf_fault[hash_number][saf_number], det_number);
-					free(hash.unconf_saf_fault[hash_number]);
-					hash.unconf_saf_fault[hash_number] = (ULLI*)malloc(sizeof(ULLI));
-					hash.unconf_saf_fault[hash_number][0] = 0ULL;
+					//free(hash.unconf_saf_fault[hash_number]);
+					//hash.unconf_saf_fault[hash_number] = (ULLI*)malloc(sizeof(ULLI)*1);
+					//hash.unconf_saf_fault[hash_number][0] = 0ULL;
 					if (saf_temp == 1) {
 						hash.unconf_saf_fault[hash_number][0] = bit_setting_1(hash.unconf_saf_fault[hash_number][0], 0);
 						net_temp->conf_fault1_flag = 1;
@@ -366,8 +367,8 @@ int make_Confirm_Fault_Pair(int test_number) {
 						hash.unconf_saf_fault[hash_number][0] = bit_setting_0(hash.unconf_saf_fault[hash_number][0], 0);
 						net_temp->conf_fault0_flag = 1;
 					}
-					free(hash.confirm_flag[hash_number]);
-					hash.confirm_flag[hash_number] = (short*)malloc(sizeof(short));
+					//free(hash.confirm_flag[hash_number]);
+					//hash.confirm_flag[hash_number] = (short*)malloc(sizeof(short)*1);
 					hash.confirm_flag[hash_number][0] = -1;
 					break;
 				}
@@ -383,6 +384,7 @@ int make_Confirm_Fault_Pair(int test_number) {
 
 			if (saf_temp == 1) {
 				hash.unconf_fault[hash_number][0]->conf_fault1_flag = 1;
+
 			}
 			else if(saf_temp==0){
 				hash.unconf_fault[hash_number][0]->conf_fault0_flag = 1;
@@ -390,10 +392,10 @@ int make_Confirm_Fault_Pair(int test_number) {
 
 		}
 
-		//確認用
+		/*/確認用
 		if (hash.n_unconf_fault[hash_number] >=2) {
 
-			//printf("\n***Unconf_Fault_Pair%d***\n", hash_number);
+			printf("\n***Unconf_Fault_Pair%d***\n", hash_number);
 
 			int det_number = 0; int saf_number = 0;
 			for (int fault_number = 0; fault_number < hash.n_index[hash_number]; fault_number++) {
@@ -409,19 +411,17 @@ int make_Confirm_Fault_Pair(int test_number) {
 					saf_flag = bit_search_N(hash.unconf_saf_fault[hash_number][saf_number], det_number);
 
 					if (saf_flag == 0) {
-						//printf("s-a-0\t%s\n", hash.unconf_fault[hash_number][fault_number]->name);
+						printf("s-a-0\t%s\n", hash.unconf_fault[hash_number][fault_number]->name);
 						//printf("net_number=%d\n", hash.unconf_fault[hash_number][fault_number]->sort_n);
 						//printf("level=%d\n", hash.unconf_fault[hash_number][fault_number]->level);
 						//printf("FFR_ID=%d\n", hash.unconf_fault[hash_number][fault_number]->ffr_id);
-						hash.unconf_fault[hash_number][fault_number]->conf_fault0_flag = -1;
 
 					}
 					else {
-						//printf("s-a-1\t%s\n", hash.unconf_fault[hash_number][fault_number]->name);
+						printf("s-a-1\t%s\n", hash.unconf_fault[hash_number][fault_number]->name);
 						//printf("net_number=%d\n", hash.unconf_fault[hash_number][fault_number]->sort_n);
 						//printf("level=%d\n", hash.unconf_fault[hash_number][fault_number]->level);
 						//printf("FFR_ID=%d\n", hash.unconf_fault[hash_number][fault_number]->ffr_id);
-						hash.unconf_fault[hash_number][fault_number]->conf_fault1_flag = -1;
 					}
 
 				}
@@ -443,7 +443,7 @@ int make_Confirm_Fault_Pair(int test_number) {
 
 	//全未識別故障ペア識別完了
 	if (n_sim_fault != 0) {
-		if (conf_fault_module == n_sim_fault) {
+		if (conf_fault_module >= n_sim_fault) {
 
 			return 0;
 		}
