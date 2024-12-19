@@ -142,6 +142,7 @@ int input_f(char* testfile, char* pinfile, char* vfile) {
 	n_tpi_po = n_po;
 	tpi_po_net = (NLIST**)malloc(sizeof(NLIST*) * n_tpi_po);
 	n_tpi = 0;
+	tpi_select_net = (SELECT*)malloc(sizeof(SELECT) * opt.n_ffr * opt.n_net);
 
 	for (int po_number = 0; po_number < n_po; po_number++) {
 		tpi_po_net[po_number] = po[po_number];
