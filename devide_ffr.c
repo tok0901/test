@@ -49,6 +49,7 @@ int devide_ffr(void) {
 		ffr[ffr_number].n_unconf_fault_det = 0;
 		ffr[ffr_number].n_unconf_fault = 0;
 		ffr[ffr_number].n_net_sim = 0;
+		ffr[ffr_number].sim_flag = 0;
 
 		ffr[ffr_number].in = (FFR**)malloc(sizeof(FFR*) * n_ffr);
 
@@ -191,6 +192,7 @@ void ffr_reset(void) {
 		free(ffr[ffr_number].in);
 		free(ffr[ffr_number].out);
 		free(ffr[ffr_number].po_fault_flag);
+		ffr[ffr_number].sim_flag = 0;
 	}
 
 	free(ffr);
